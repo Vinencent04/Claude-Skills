@@ -1,0 +1,65 @@
+[
+ {
+  "i": 0,
+  "text": "In 1789, the king of France ran out of money, and that started a revolution that ended with his head in a basket.",
+  "start": 0.4,
+  "end": 6.829,
+  "words": 23
+ },
+ {
+  "i": 1,
+  "text": "France was broke. Wars had emptied the treasury, and bad harvests made bread too expensive.",
+  "start": 7.529,
+  "end": 11.703,
+  "words": 15
+ },
+ {
+  "i": 2,
+  "text": "The nobles paid almost no taxes, so the Third Estate, ninety-seven percent of the country, paid for everything.",
+  "start": 12.403,
+  "end": 17.476,
+  "words": 18
+ },
+ {
+  "i": 3,
+  "text": "The king called a meeting for more money. The Third Estate got locked out, so they swore an oath on a tennis court to write a constitution.",
+  "start": 18.176,
+  "end": 24.053,
+  "words": 27
+ },
+ {
+  "i": 4,
+  "text": "On July fourteenth, Paris stormed the Bastille for gunpowder. It held exactly seven prisoners.",
+  "start": 24.753,
+  "end": 29.07,
+  "words": 14
+ },
+ {
+  "i": 5,
+  "text": "Soon the monarchy was gone, and in 1793, King Louis lost his head to a new machine, the guillotine.",
+  "start": 29.77,
+  "end": 35.464,
+  "words": 19
+ },
+ {
+  "i": 6,
+  "text": "Luckily, it was fast. Unluckily, it stayed busy. The Terror sent about seventeen thousand people to it.",
+  "start": 36.164,
+  "end": 40.807,
+  "words": 17
+ },
+ {
+  "i": 7,
+  "text": "You see, when everyone is a suspect, nobody is safe. In 1794, even Robespierre got the same treatment.",
+  "start": 41.507,
+  "end": 47.706,
+  "words": 18
+ },
+ {
+  "i": 8,
+  "text": "France then turned to a young general, Napoleon, who took power in 1799. A country that beheaded its king ended up with an emperor.",
+  "start": 48.406,
+  "end": 56.053,
+  "words": 24
+ }
+]
