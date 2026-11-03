@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { Pen, bodyFront, fxBurst, fxPuff, fxStars, fxContact, fxShadow, SKINS, INK, Outfit, Expr, FrontOpts } from "./toon";
 import { Place, FxPlace, CamInfo, hh, q, clamp01, smooth } from "./cards";
-import { FPS, V3, SetName, toW, shotAt, T_PURSE, T_FLASH, T_CANNON, T_DROP_KING, T_DROPS, T_DROP_ROB, T_CROWN_HEAD } from "./story";
+import { FPS, V3, SetName, toW, shotAt, T_PURSE, T_HOOK_DROP, T_CANNON, T_DROP_KING, T_DROPS, T_DROP_ROB, T_CROWN_HEAD } from "./story";
 
 export type Stage = { places: Place[]; fx: FxPlace[] };
 export const SUN = new THREE.Vector3(-0.8, 0.55, -0.3).normalize();
@@ -100,18 +100,31 @@ export const stage = (f: number, cam: CamInfo): Stage => {
 
   switch (id) {
     case 1: case 2: {                                    // hook: the king runs out of money
-      const kingExpr: Expr = t < T_PURSE ? "grin" : t < 2.6 ? "nervous" : t < 4.4 ? "shock" : "dazed";
+      const kingExpr: Expr = t < 1.2 ? "shock" : t < 2.6 ? "nervous" : t < 4.4 ? "shock" : "dazed";
       const dy = t < T_PURSE ? 0.55 : 0.55 - 0.9 * smooth((t - T_PURSE) / 0.25) + 0.1 * Math.sin(t * 14);
-      s.who(1, KING, "king", 0, 0.45, -8.3, { mode: "sit", expr: kingExpr, arms: { r: [0.45, Math.round(dy * 20) / 20] }, held: "purse", blink: lidAt(t, 1) }, 1, false);
+      s.who(1, KING, "king", 0, 0.45, -8.3, { mode: "sit", expr: kingExpr, arms: { r: [0.45, Math.round(dy * 20) / 20] }, held: "purse", blink: t < 1.2 ? 0 : lidAt(t, 1) }, 1, false);
       nobles([[-2.5, 0.45, -8.3], [2.6, 0.45, -8.4]]);
+      s.burst(0.0, 0.0, 2.0, -8.0, 2.0, 0.35);
       s.puff(T_PURSE + 0.2, 0.9, 1.6, -8.0, 1.0, 0.9);
-      s.burst(3.6, 0.0, 2.6, -7.8, 1.6, 0.4);
       break;
     }
-    case 3: {                                            // flash-forward: the crown in the basket
-      s.fx("crown", 200, 200, crownCard, 0, 1.95, -7.1, 0.55, 0.55, { rot: 0.15 });
+    case 22: {                                           // the mob bursts in through the doors, straight at the lens
+      const u = clamp01((t - 3.2) / 1.8);
+      for (let k = 0; k < 24; k++) {
+        const z = 7.2 - 12.6 * u * (0.78 + 0.22 * hh(k, 3)) - 0.9 * (k >> 2), x = -2.3 + 4.6 * ((k % 4) / 3) + 0.35 * hh(k, 2);
+        const fo: FrontOpts = { mode: "stroll", phase: q(stroll(t, k, 2.4), 24), expr: k % 2 ? "laugh" : "grin", arms: { l: [-0.55, -0.95], r: [0.55, -0.95] }, held: k < 2 ? "flag" : "fork" };
+        s.who(200 + k, k % 3 === 2 ? P(k) : REV(k), `m${k % 3 === 2 ? "p" : "r"}${k % 5}`, x, 0, z, fo);
+      }
+      s.burst(3.6, 0.0, 2.6, 0.5, 2.4, 0.4);
+      break;
+    }
+    case 3: {                                            // flash-forward: the blade falls, the crown lands in the basket
+      const k = clamp01((t - T_HOOK_DROP - 0.05) / 0.28);
+      if (t < T_HOOK_DROP + 0.05) { /* blade still up, empty frame */ }
+      else if (t < T_HOOK_DROP + 0.4) s.fx("crown", 200, 200, crownCard, 0, 2.7 - 0.75 * k * k, -7.6 + 0.5 * k, 0.55, 0.55, { rot: 3.2 * k });
+      else s.fx("crown", 200, 200, crownCard, 0, 1.95, -7.1, 0.55, 0.55, { rot: 0.15 });
       cheering([[-5, 0, -2], [-3, 0, 0], [-1.5, 0, 1], [1.5, 0, 1], [3, 0, 0], [5, 0, -2], [-4, 0, 3], [4, 0, 3]], 2, 3);
-      s.burst(T_FLASH, 0, 2.3, -7.0, 1.5, 0.4);
+      s.burst(T_HOOK_DROP + 0.33, 0, 2.3, -7.0, 1.5, 0.4);
       break;
     }
     case 4: case 5: {                                    // bread is too expensive

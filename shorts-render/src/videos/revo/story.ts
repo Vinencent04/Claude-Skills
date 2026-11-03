@@ -18,7 +18,8 @@ export const SENT = [[0.4, 6.83], [7.53, 11.7], [12.4, 17.48], [18.18, 24.05], [
 
 // ---------------- events (seconds) ----------------
 export const T_PURSE = 1.7;        // the king turns his purse out: nothing
-export const T_FLASH = 5.4;        // flash-forward: the crown in the basket
+export const T_FLASH = 5.4;        // (old flash-forward start)
+export const T_HOOK_DROP = 5.95;   // hook: the blade falls, the crown drops into the basket ("...his head in a basket")
 export const T_CANNON = 26.0;
 export const T_DROP_KING = 34.9;   // "...the guillotine"
 export const T_DROPS = [36.4, 37.9, 38.3, 38.7, 39.1, 39.5, 39.9, 40.3]; // "Luckily, it was fast. Unluckily, it stayed busy."
@@ -27,7 +28,7 @@ export const T_CROWN_HEAD = 55.0;  // Napoleon sits down, crowned
 
 /** blade drop amount 0 (up) .. 1 (down): falls in 4 frames, is hoisted back 0.5 s later */
 export const bladeAt = (t: number, shot: number) => {
-  if (shot === 3) return 1; // flash-forward frame: blade already down
+  if (shot === 3) return t < T_HOOK_DROP ? 0 : t < T_HOOK_DROP + 0.13 ? (t - T_HOOK_DROP) / 0.13 : 1; // hook shot: stays down
   const evs = [T_DROP_KING, ...T_DROPS, T_DROP_ROB];
   let v = 0;
   for (const e of evs) {
@@ -75,10 +76,11 @@ const mk = (id: number, set: SetName, t0: number, t1: number, keys: ((a: number)
 const K = (f: number, s: (f: number) => Shot, extra: Partial<Key> = {}): Key => ({ f, s, ...extra });
 
 export const SHOTS: ShotDef[] = [
-  // --- hook ---
-  mk(1, "hall", 0, 3.2, (a) => [K(a, cam("hall", [2.8, 2.0, -1.0], [0, 1.6, -8.6], a, 0.0025, { fov: 50 }))], 0),
-  mk(2, "hall", 3.2, 5.4, (a) => [K(a, cam("hall", [0.5, 2.0, -5.0], [0, 1.75, -8.4], a, 0.003, { fov: 32, roll: -0.035 }))], 13, [0, 1.8, -8.4]),
-  mk(3, "square", 5.4, 7.5, (a) => [K(a, cam("square", [2.4, 2.7, -3.6], [0, 1.8, -7.2], a, 0.002, { fov: 34, roll: 0.04 }))], 10),
+  // --- hook: shock punch-in, the empty purse, the mob bursts in, flash-forward to the basket ---
+  mk(1, "hall", 0, 1.6, (a) => [K(a, cam("hall", [0.15, 1.75, -6.3], [0, 1.65, -8.4], a, 0.007, { fov: 28, roll: -0.035 }))], 9, [0, 1.65, -8.4]),
+  mk(2, "hall", 1.6, 3.2, (a) => [K(a, cam("hall", [1.7, 1.9, -4.6], [0, 1.5, -8.4], a, 0.003, { fov: 40, roll: 0.03 }))], 6),
+  mk(22, "hall", 3.2, 5.0, (a) => [K(a, cam("hall", [0, 1.5, -6.6], [0, 1.4, 6.0], a, 0.003, { fov: 46 }, 0.006))], 0),
+  mk(3, "square", 5.0, 7.5, (a) => [K(a, cam("square", [2.8, 2.5, -2.4], [0, 2.7, -7.6], a, 0.002, { fov: 46, roll: 0.04 }))], 10),
   // --- bread ---
   mk(4, "street", 7.5, 9.8, (a) => [K(a, cam("street", [6.0, 2.2, 8.0], [-0.2, 1.5, -5.0], a, 0.002, { fov: 46 }))], 0),
   mk(5, "street", 9.8, 12.2, (a) => [K(a, cam("street", [0.8, 1.5, -1.3], [-0.55, 1.45, -3.8], a, 0.003, { fov: 38, roll: -0.03 }))], 13, [-0.8, 1.5, -3.6]),
@@ -108,7 +110,7 @@ export const SHOTS: ShotDef[] = [
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 
 // kicks: image shake on impacts
-const KICKS: [number, number][] = [[T_FLASH, 0.6], [T_CANNON, 0.8], [T_DROP_KING, 1.2], ...T_DROPS.map((t, i) => [t, i ? 0.3 : 0.7] as [number, number]), [T_DROP_ROB, 1.2], [T_CROWN_HEAD, 0.4], [3.6, 0.6]];
+const KICKS: [number, number][] = [[T_HOOK_DROP, 1.0], [T_CANNON, 0.8], [T_DROP_KING, 1.2], ...T_DROPS.map((t, i) => [t, i ? 0.3 : 0.7] as [number, number]), [T_DROP_ROB, 1.2], [T_CROWN_HEAD, 0.4], [3.6, 0.6]];
 export const kickAt = (t: number) => {
   let a = 0;
   for (const [t0, g] of KICKS) {

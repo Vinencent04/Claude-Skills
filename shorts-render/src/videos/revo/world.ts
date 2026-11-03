@@ -88,6 +88,7 @@ export class World {
       put("hall", cyl(0.7, 0.4, 22), M.gold, x, 0.2, z); put("hall", cyl(0.7, 0.4, 22), M.gold, x, 6.8, z);
     }
     bx("hall", M.carpet, [-1.3, 0, -8], [1.3, 0.03, 8], 4);
+    bx("hall", M.dark, [-1.9, 0, 7.8], [1.9, 4.4, 7.95]); bx("hall", M.gold, [-2.1, 4.4, 7.75], [2.1, 4.7, 7.95]);
     bx("hall", M.red, [-3.4, 0, -10], [3.4, 0.45, -7.0]);                       // dais
     bx("hall", M.gold, [-3.4, 0.45, -7.02], [3.4, 0.5, -7.0]);
     bx("hall", M.red, [-0.7, 0.45, -9.1], [0.7, 1.0, -8.0]);                    // throne: seat, back, arms
