@@ -194,7 +194,7 @@ env = np.maximum.accumulate(env[::-1])[::-1] * 0 + env
 sm = np.copy(env)
 for i in range(1, N): sm[i] = max(env[i], sm[i - 1] * (1 - 1 / (0.25 * SR)))   # 250 ms release
 duck = 1 - 0.5 * np.clip(sm / 0.08, 0, 1)
-mix = voice * 1.0 + (mus * db(-10) + amb * db(-8) + sfx * db(-9)) * duck
+mix = voice * 1.0 + (mus * db(-17) + amb * db(-9) + sfx * db(-10)) * duck
 fi = np.minimum(tt(N) / 0.05, 1); fo = np.minimum((DUR - tt(N)) / 0.4, 1)
 mix *= fi * fo
 mix = np.tanh(mix * 0.85) / np.tanh(0.85)
@@ -204,4 +204,4 @@ with wave.open(sys.argv[3], "wb") as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())
 sp = np.abs(voice[0]) > 0.02
 print("rms dBFS", 20 * np.log10(np.sqrt((mix ** 2).mean())), "music-under-speech vs voice (dB):",
-      20 * np.log10(np.sqrt(((mus * db(-10) * duck)[:, sp] ** 2).mean()) / np.sqrt((voice[:, sp] ** 2).mean())))
+      20 * np.log10(np.sqrt(((mus * db(-17) * duck)[:, sp] ** 2).mean()) / np.sqrt((voice[:, sp] ** 2).mean())))
