@@ -9,3 +9,5 @@ Whole families lived in basements there. Eight people died. <break time="1.0s" /
 At the inquest, the jury called it an accident. An act of God. <break time="0.5s" />
 And the brewery got its beer tax refunded. <break time="0.7s" />
 Eight people died. The beer duty was refunded.
+
+[CTA, generated separately, appended at 50.6 s] If you like beer, follow for more stories like this.

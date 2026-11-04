@@ -1,9 +1,9 @@
 """Original sound for the beer-flood short: synthesized SFX + a quiet drone bed, timed to story.ts events. numpy only.
-usage: python3 beerflood_audio.py out.wav   (stereo 48 kHz 16-bit, 50.7 s). The voice is mixed in afterwards with ffmpeg."""
+usage: python3 beerflood_audio.py out.wav   (stereo 48 kHz 16-bit, 54.0 s). The voice is mixed in afterwards with ffmpeg."""
 import sys, wave
 import numpy as np
 
-SR = 48000; DUR = 50.7; N = int(SR * DUR)
+SR = 48000; DUR = 54.0; N = int(SR * DUR)
 rng = np.random.default_rng(11)
 def tt(n): return np.arange(n) / SR
 def fft_filter(x, lo=None, hi=None):
@@ -67,6 +67,8 @@ n = int(SR * 5); put(bed, 45.7, noise(n, 90, 500) * 0.05, 0.0, 1.0)
 for k in range(16):
     t0 = 46.2 + k * 0.17 + 0.1 * rng.random()
     if rng.random() < 0.6: put(sfx, t0, noise(int(SR * 0.05), 400, 3000) * np.exp(-tt(int(SR * 0.05)) / 0.015), 0.0, 0.05)
+# follow call-to-action: a small bright two-note ding on "follow" (51.6 s)
+for k, f in enumerate((880, 1320)): put(sfx, 51.6 + k * 0.12, clink(f, 0.6), 0.0, 0.16)
 # bed: low drone that darkens (A1 + fifth), minimal
 t = tt(N); drone = (np.sin(2 * np.pi * 55 * t) + 0.6 * np.sin(2 * np.pi * 82.4 * t) + 0.3 * np.sin(2 * np.pi * 110.4 * t)) * (0.025 + 0.015 * np.sin(2 * np.pi * t / 17))
 drone *= np.minimum(t / 2, 1) * np.minimum((DUR - t) / 2, 1)

@@ -185,7 +185,8 @@ export const stage = (f: number, cam: CamInfo): Stage => {
       break;
     }
     case 12: {                                           // empty cold street, one mug on a barrel
-      s.fx("mug", 160, 160, mug, 0.6, 1.2, 0.5, 0.6, 0.6, { rot: 0.1 });
+      const hop = t >= 51.0 ? Math.max(0, Math.sin((t - 51.0) * 9)) * Math.exp(-(t - 51.0) * 0.5) * 0.18 : 0;
+      s.fx("mug", 160, 160, mug, 0.6, 1.2 + hop, 0.5, 0.6, 0.6, { rot: 0.1 + 0.25 * hop });
       for (let k = 0; k < 3; k++) s.fx("splash", 200, 200, splat, -1.6 + k * 1.3, 0.02, -2 - k * 3, 0.9, 0.5, { flat: true, rot: k });
       break;
     }

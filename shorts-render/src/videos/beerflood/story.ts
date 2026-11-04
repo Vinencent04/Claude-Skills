@@ -1,7 +1,7 @@
 // "The Beer Flood": our own ~50 s short about the London Beer Flood of 1814. Shots are timed to beerflood-voice/words.json.
 // Five painted sets stand 60 m apart in one scene (lane, office, brewery yard, brewery hall, courtroom); every shot is a camera in one.
 export const FPS = 30;
-export const TOTAL = 1520;
+export const TOTAL = 1620;
 export type V3 = [number, number, number];
 export type SetName = "lane" | "office" | "yard" | "brew" | "court";
 export const ORG: Record<SetName, V3> = { lane: [0, 0, 0], office: [60, 0, 0], yard: [120, 0, 0], brew: [180, 0, 0], court: [240, 0, 0] };
@@ -25,6 +25,7 @@ export const T_ACCIDENT = 40.25;    // "accident" 40.36: the ACCIDENT stamp land
 export const T_GOD = 41.45;         // "an act of God": light falls on the coroner
 export const T_REFUND = 44.5;       // "tax refunded" (44.48): owner lifts the refund paper
 export const T_END = 49.3;
+export const T_CTA = 50.6;          // "If you like beer, follow..." (first word 50.72)
 
 // ---------------- cameras ----------------
 export type Cam = { pos: V3; look: V3; fov: number; roll: number };
@@ -95,7 +96,7 @@ export const SHOTS: ShotDef[] = [
   // 11 the refund: push-in on the owner
   mk(11, "office", "office", 1289, 1385, (a) => [K(a, cam("office", [-0.4, 2.0, -0.6], [0, 1.9, -5.4], a, 0.0075, { fov: 38, roll: 0.03 }, 0.0))], 10, [0, 1.9, -5.4]),
   // 12 empty street, slow pull-back to the wide
-  mk(12, "lane", "cold", 1385, 1520, (a) => [K(a, move("lane", [0.1, 1.4, 4.2], [0.6, 1.2, 0.5], [0.2, 3.0, 12.5], [0, 2.0, -3.5], a, 130, { fov: 50 }, 0.0))], 5, [0.6, 1.2, 0.5]),
+  mk(12, "lane", "cold", 1385, 1620, (a) => [K(a, move("lane", [0.1, 1.4, 4.2], [0.6, 1.2, 0.5], [0.2, 3.0, 12.5], [0, 2.0, -3.5], a, 130, { fov: 50 }, 0.0012))], 5, [0.6, 1.2, 0.5]),
 ];
 void FA;
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
