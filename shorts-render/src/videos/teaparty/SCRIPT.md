@@ -55,3 +55,9 @@ TWIST PAYOFF
 ## Render plan
 Same as beerflood: parts at shot boundaries, `COMP=Teaparty sh shorts-render/scripts/job.sh <a> <b>` in sub-sessions (about 9 s/frame at 1080x1920 software GL), concat with ffmpeg, captions layer (new composition), ElevenLabs voice + synthesized SFX, loudnorm to -15 LUFS.
 Open points before recording: confirm "forty-six tons" and "Nothing else was touched" (padlock detail).
+
+## Status 2026-11-04 (build)
+- Double hook: verbal = line 1 (46 tons dumped) + line 2 (the tea was getting cheaper); visual = shot 1 (chests flying off the ship, whip-follow) + shot 2 (calm shop, CHEAPER! tag slaps on).
+- Final voice text: teaparty-voice/script.txt (Liam, same settings as beerflood). "Nothing else was touched" was dropped (unconfirmed). Voice 42.7 s, words.json (w/t0/t1), 14 shots, 1302 frames (43.4 s).
+- Shots (frames): 1 0-146, 2 146-212, 3 212-281, 4 281-356, 5 356-436, 6 436-503, 7 503-586, 8 586-695, 9 695-830, 10 830-961, 11 961-1046, 12 1046-1114, 13 1114-1198, 14 1198-1302.
+- Render parts (inclusive): A 0-355, B 356-585, C 586-829, D 830-1113, E 1114-1301. Composition `Teaparty`, job: `COMP=Teaparty sh shorts-render/scripts/job.sh <a> <b>`.
