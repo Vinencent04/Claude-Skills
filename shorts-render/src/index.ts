@@ -6,6 +6,7 @@ import { BeerfloodShort, BEERFLOOD_FRAMES } from "./videos/beerflood/Beerflood";
 import { TeapartyShort, TEAPARTY_FRAMES } from "./videos/teaparty/Teaparty";
 import { Subs, SUBS_FRAMES } from "./videos/subs/Subs";
 import { SubsBeerflood, SUBS_BF_FRAMES } from "./videos/subs/SubsBeerflood";
+import { SubsTeaparty, SUBS_TP_FRAMES } from "./videos/subs/SubsTeaparty";
 const C = (id: string, component: React.FC, d: number) => React.createElement(Composition, { id, component, durationInFrames: d, fps: 30, width: 1080, height: 1920 });
-const Root: React.FC = () => React.createElement(React.Fragment, null, C("Kitchen", KitchenShort, KITCHEN_FRAMES), C("Revo", RevoShort, REVO_FRAMES), C("Beerflood", BeerfloodShort, BEERFLOOD_FRAMES), C("Teaparty", TeapartyShort, TEAPARTY_FRAMES), C("Subs", Subs, SUBS_FRAMES), C("SubsBeerflood", SubsBeerflood, SUBS_BF_FRAMES));
+const Root: React.FC = () => React.createElement(React.Fragment, null, C("Kitchen", KitchenShort, KITCHEN_FRAMES), C("Revo", RevoShort, REVO_FRAMES), C("Beerflood", BeerfloodShort, BEERFLOOD_FRAMES), C("Teaparty", TeapartyShort, TEAPARTY_FRAMES), C("Subs", Subs, SUBS_FRAMES), C("SubsBeerflood", SubsBeerflood, SUBS_BF_FRAMES), C("SubsTeaparty", SubsTeaparty, SUBS_TP_FRAMES));
 registerRoot(Root);
