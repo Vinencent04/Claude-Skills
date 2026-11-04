@@ -43,3 +43,8 @@ Format: vertical 1080x1920, 30 fps, <= 60 s, ~2.5 words/s, ElevenLabs Liam (same
 | 12 | night | CTA, quiet | one emu feather on a fence post |
 
 Open points: confirm "about twenty thousand" and "a major, two soldiers"; need a new emu character card (toon.ts) for the 3D world.
+
+## Status 2026-11-04 (build)
+- Voice: ElevenLabs Liam (same settings), 49.0 s, words in emuwar-voice/words.json, 14 shots, 1500 frames (50 s). Final text: emuwar-voice/script.txt ("about twenty thousand", "a major, two soldiers" still unconfirmed).
+- Double hook: verbal = lines 1+2; visual = shot 1 (herd outruns the army truck, whip from emus to truck) + shot 2 (an emu in the soldiers' hat sits on the truck, soldiers surrender, confetti).
+- Render parts (inclusive): A 0-384, B 385-630, C 631-878, D 879-1121, E 1122-1499. Composition `Emuwar`: `COMP=Emuwar sh shorts-render/scripts/job.sh <a> <b>`.
