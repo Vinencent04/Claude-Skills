@@ -1,0 +1,11 @@
+In 1814, a wave of beer drowned eight people in London. <break time="0.3s" /> And the brewery? It got a tax refund. <break time="0.8s" />
+It started at the Horse Shoe Brewery, in October 1814. <break time="0.4s" />
+Inside stood a wooden vat two storeys tall, holding over a hundred thousand gallons of fermenting beer. <break time="0.6s" />
+Iron hoops held it together. That afternoon, a clerk noticed one had slipped. <break time="0.7s" />
+The hoop stayed where it was. <break time="1.0s" />
+An hour later, the vat burst. <break time="0.8s" />
+The wave smashed through the brewery wall and poured into St Giles, one of the poorest slums in London. <break time="0.5s" />
+Whole families lived in basements there. Eight people died. <break time="1.0s" />
+At the inquest, the jury called it an accident. An act of God. <break time="0.5s" />
+And the brewery got its beer tax refunded. <break time="0.7s" />
+Eight people died. The beer duty was refunded.

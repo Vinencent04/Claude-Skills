@@ -5,7 +5,7 @@ A=$1; B=$2
 cd "$(dirname "$0")/.."
 npm ci --no-audit --no-fund
 mkdir -p out
-COMP=${COMP:-Revo} node scripts/render.mjs out/part.mp4 $A-$B 0.5 3
+COMP=${COMP:-Revo} node scripts/render.mjs out/part.mp4 $A-$B ${DPR:-0.5} ${CONC:-3}
 mkdir -p renders && cp out/part.mp4 renders/part_$A-$B.mp4
 cd ..
 git checkout -B render-$A-$B
