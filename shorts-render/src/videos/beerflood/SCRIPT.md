@@ -89,3 +89,15 @@ Cut the 1560 frames at shot boundaries so each part is self-contained and the cr
 | E | 1230-1559 | 10-12 |
 Each sub-session: attach this repo, checkout the build branch, `COMP=Beerflood sh shorts-render/scripts/job.sh <a> <b>` and push `render-<a>-<b>`. Then the main session concatenates (`ffmpeg -f concat`), overlays the captions layer (render-subs.mjs, ProRes alpha) and muxes the ElevenLabs voice plus music/SFX mix.
 Note: job.sh currently hard-codes dpr 0.5; add `DPR` env so the final can use 1.3333.
+
+
+## Status 2026-11-04 (build session)
+- Voice: ElevenLabs "Liam" (premade, id TX3LPaxmHKxFdv7VOQHJ), eleven_multilingual_v2, stability .4, similarity .8, style .35, speed 1.08, speaker boost.
+  Final text in `shorts-render/beerflood-voice/script.txt` (SSML breaks). Line 6 uses the softer "The hoop stayed where it was." (the "nobody did anything" claim stayed unconfirmed).
+  Voice length 49.6 s, 125 words. `words.json` (STT scribe_v1, keys w/t0/t1) in the same folder. Total video = 1520 frames (50.7 s).
+- Frame ranges recomputed from words.json (3 frames before each line): `beerflood-voice/shots.json`.
+  Shots: 1 0-125, 2 125-220, 3 220-352, 4 352-532, 5 532-693, 6 693-774, 7 774-857, 8 857-1030, 9 1030-1153, 10 1153-1289, 11 1289-1385, 12 1385-1520.
+- Render parts (inclusive): A 0-351, B 352-692, C 693-856, D 857-1152, E 1153-1519.
+- Composition `Beerflood` (src/videos/beerflood/): story.ts (camera/shots/events), world.ts (5 sets, wave, vat burst, flood), ccast.ts (cast + effect cards), lights.ts (PRESETS per shot).
+- Render cost (software GL, 3 workers): ~9 s/frame at DPR 0.5 (which still outputs 1080x1920, R3F clamps dpr to >=1). 2K (DPR 1.3333) is >25 s/frame: not practical here, deliver 1080x1920.
+- Job: `COMP=Beerflood sh shorts-render/scripts/job.sh <a> <b>` (DPR env var overrides the 0.5 default).
