@@ -34,7 +34,7 @@ export const SubsStink: React.FC = () => {
   return (
     <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center" }}>
       <div style={{
-        position: "absolute", top: 1360, width: 1080, textAlign: "center", transform: `scale(${pop})`,
+        position: "absolute", top: 1490, width: 1080, textAlign: "center", transform: `scale(${pop})`,
         fontFamily: "'Inter Display', 'Inter', 'DejaVu Sans', sans-serif", fontWeight: 900, fontSize: size, lineHeight: 1.05, letterSpacing: 1,
         color: c.hi ? "#FFD84A" : "#FFFFFF", WebkitTextStroke: `${Math.round(size * 0.13)}px #000`, paintOrder: "stroke fill" as never,
         filter: "drop-shadow(0 8px 10px rgba(0,0,0,.45))",
