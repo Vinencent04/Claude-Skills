@@ -120,7 +120,7 @@ export class World {
     for (const x of [-7.5, 7.5]) { put("obs", cyl(0.06, 2.6, 8), M.iron, x, 1.3, -9); flame("obs", x, 2.8, -9, 0.16); }
 
     // =============== TOWN ===============
-    const gt = new THREE.Mesh(new THREE.PlaneGeometry(260, 200), M.night); gt.rotation.x = -Math.PI / 2; gt.position.set(ORG.town[0], 0, ORG.town[2] - 40); gt.receiveShadow = true; R.add(gt);
+    const gt = new THREE.Mesh(new THREE.PlaneGeometry(96, 200), M.night); gt.rotation.x = -Math.PI / 2; gt.position.set(ORG.town[0], 0, ORG.town[2] - 40); gt.receiveShadow = true; R.add(gt);
     bx("town", M.road, [-4.2, 0.01, -90], [4.2, 0.05, 30]);
     [[-11, -6, 0], [-11, -18, 1], [-11, -30, 2], [-11, 4, 3], [11, -10, 4], [11, -22, 5], [11, 2, 0], [-19, -12, 1], [19, -16, 2], [-18, -26, 3], [18, -30, 4]].forEach(([x, z, si]) => house(b, ORG.town[0] + x, ORG.town[2] + z, x < 0 ? Math.PI / 2 : -Math.PI / 2, 7, 6, 4.2, si));
     bx("town", M.plaster, [-1.6, 0, -37.6], [1.6, 11, -34.4], 3); bx("town", M.beam, [-2, 11, -38], [2, 11.6, -34]);   // clock tower
@@ -128,8 +128,8 @@ export class World {
     aurora("town", -80);
 
     // =============== CAMP: miners in the Rockies ===============
-    const gc = new THREE.Mesh(new THREE.PlaneGeometry(240, 200), M.snow); gc.rotation.x = -Math.PI / 2; gc.position.set(ORG.camp[0], 0, ORG.camp[2] - 30); gc.receiveShadow = true; R.add(gc);
-    [[-45, -70, 30, 26], [-10, -85, 36, 32], [30, -75, 32, 28], [60, -90, 28, 24], [-70, -60, 24, 20], [0, -62, 20, 16]].forEach(([x, z, r, h]) => { put("camp", cyl(r, h, 6, 0.5), M.rock, x, h / 2, z); put("camp", cyl(r * 0.36, h * 0.38, 6, 0.4), M.rockSnow, x, h * 0.82, z); });
+    const gc = new THREE.Mesh(new THREE.PlaneGeometry(96, 200), M.snow); gc.rotation.x = -Math.PI / 2; gc.position.set(ORG.camp[0], 0, ORG.camp[2] - 30); gc.receiveShadow = true; R.add(gc);
+    [[-10, -85, 36, 32], [30, -75, 32, 28], [60, -90, 28, 24], [0, -62, 20, 16], [-24, -72, 22, 20]].forEach(([x, z, r, h]) => { put("camp", cyl(r, h, 6, 0.5), M.rock, x, h / 2, z); put("camp", cyl(r * 0.36, h * 0.38, 6, 0.4), M.rockSnow, x, h * 0.82, z); });
     [[-7, 0, 0], [6.5, -1.5, 1], [2.5, 4, 0], [-4, 6.5, 1]].forEach(([x, z, k]) => put("camp", cyl(2.2, 2.6, 4, 0.1), k ? M.tentB : M.tentA, x, 1.3, z, new THREE.Matrix4().makeRotationY(0.8)));
     [[-14, -5], [14, -8], [-12, 8], [16, 6], [-18, -14], [20, -16]].forEach(([x, z]) => { put("camp", cyl(0.25, 1.2, 6), M.beam, x, 0.6, z); put("camp", cyl(1.8, 5, 8, 0.1), M.green, x, 3.4, z); });
     for (let i = 0; i < 4; i++) put("camp", cyl(0.14, 1.4, 6), M.beam, -0.4 + 0.25 * i, 0.15, -2.3, new THREE.Matrix4().makeRotationZ(1.4 - i * 0.2));
@@ -137,7 +137,7 @@ export class World {
     aurora("camp", -90);
 
     // =============== GRID: a modern city ===============
-    const gg = new THREE.Mesh(new THREE.PlaneGeometry(260, 200), M.night); gg.rotation.x = -Math.PI / 2; gg.position.set(ORG.grid[0], 0, ORG.grid[2] - 40); gg.receiveShadow = true; R.add(gg);
+    const gg = new THREE.Mesh(new THREE.PlaneGeometry(96, 200), M.night); gg.rotation.x = -Math.PI / 2; gg.position.set(ORG.grid[0], 0, ORG.grid[2] - 40); gg.receiveShadow = true; R.add(gg);
     bx("grid", M.road, [-5, 0.01, -90], [5, 0.05, 30]);
     let bi = 0;
     for (let k = 0; k < 11; k++) for (const sx of [-1, 1]) {
