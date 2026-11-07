@@ -1,3 +1,4 @@
+import * as THREE from "three";
 // Painted textures for the beer flood (same recipe as paint.ts: Canvas2D, jittered, dark seams painted in).
 import { ctex, jit } from "./paint";
 
@@ -167,3 +168,18 @@ export const winTex = (key: string, lit: boolean) => ctex("sWin" + key, 128, 256
 export const canvasTex = (key: string, c1: string, c2: string) => ctex("sTent" + key, 128, 128, (g) => {
   g.fillStyle = c1; g.fillRect(0, 0, 128, 128); g.fillStyle = c2; for (let i = 0; i < 4; i++) g.fillRect(i * 32 + 4, 0, 10, 128);
 });
+/** calm floor boards: 4 wide boards, bold seams, no fine detail (planksHD aliased/shimmered when the camera moved) */
+export const floorBoards = () => {
+  const t = ctex("sFloorBoards", 512, 512, (g, r) => {
+    const n = 4, w = 512 / n, cols = ["#b98a62", "#c4946a", "#b08058", "#bf8f66"];
+    for (let i = 0; i < n; i++) {
+      g.fillStyle = jit(r, cols[i], 0.04, 2, 0.05); g.fillRect(i * w, 0, w, 512);
+      g.fillStyle = "rgba(255,230,190,.10)"; g.fillRect(i * w + 10, 0, w * 0.3, 512);
+      for (let k = 0; k < 3; k++) { g.strokeStyle = "rgba(90,50,20,.12)"; g.lineWidth = 6; const x = i * w + w * (0.2 + 0.6 * r()); g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + 14, 170, x - 14, 340, x + 6, 512); g.stroke(); }
+    }
+    g.fillStyle = "#4a2a14"; for (let i = 0; i <= n; i++) g.fillRect(i * w - 5, 0, 10, 512);
+    for (let k = 0; k < 4; k++) { const x = (k % n) * w, y = 40 + 120 * k + 20 * r(); g.fillRect(x, y, w, 8); }   // butt joints
+  });
+  t.anisotropy = 16; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true;
+  return t;
+};

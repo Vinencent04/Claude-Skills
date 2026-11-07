@@ -2,8 +2,8 @@
 // camp (miners in the Rockies), grid (modern city). update(f, camera, scene) poses lights, fire, aurora, blackout and the cast cards.
 import * as THREE from "three";
 import { Batch, boxGeo, V, lam, house } from "./build";
-import { rep, planksHD } from "./paint";
-import { plaster, staves, snowTex, mudTex, auroraTex, earthTex, winTex, canvasTex, nightGround } from "./bpaint";
+import { rep } from "./paint";
+import { plaster, staves, snowTex, mudTex, auroraTex, earthTex, winTex, canvasTex, nightGround, floorBoards } from "./bpaint";
 import { PRESETS, BG } from "./lights";
 import { TONE, CHAR, twoTone } from "./shade";
 import { NOINK } from "./ink";
@@ -39,10 +39,10 @@ export class World {
     this.sun.castShadow = true; this.sun.shadow.mapSize.set(3072, 3072);
     R.add(this.hemi, this.sun, this.sun.target);
 
-    M.snow = lam("sSnow", () => ({ map: rep(snowTex(), 26, 18) }));
+    M.snow = lam("sSnow", () => ({ map: rep(snowTex(), 10, 8) }));
     M.mud = lam("sMud", () => ({ map: rep(mudTex(), 30, 3) }));
-    M.night = lam("sNightG", () => ({ map: rep(nightGround(), 24, 24) }));
-    M.planks = lam("planksHD", () => ({ map: planksHD() }));
+    M.night = lam("sNightG", () => ({ map: rep(nightGround(), 8, 8) }));
+    M.planks = lam("sFloorM", () => ({ map: floorBoards() }));
     M.wood = lam("sWood", () => ({ map: staves("sw", "#8a5a30", 4) }));
     M.beam = lam("sBeam", () => ({ map: staves("sb", "#4a3022", 3) }));
     M.panel = lam("sPanel", () => ({ map: staves("sp", "#7a4c2a", 10) }));
@@ -75,7 +75,7 @@ export class World {
     };
     const flame = (set: SetName, x: number, y: number, z: number, s = 0.12) => { const m = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 8), this.flameMat); m.scale.y = 1.5; m.position.set(ORG[set][0] + x, y, ORG[set][2] + z); m.layers.set(NOINK); R.add(m); this.flames.push(m); return m; };
     const room = (set: SetName, floor: THREE.Material) => {
-      bx(set, floor, [-9, -0.2, -11], [9, 0, 5], 3);
+      bx(set, floor, [-9, -0.2, -11], [9, 0, 5], 4.5);
       bx(set, M.panel, [-9, 0, -11.2], [9, 7, -11]); bx(set, M.panel, [-9.2, 0, -11], [-9, 7, 5]); bx(set, M.panel, [9, 0, -11], [9.2, 7, 5]);
       bx(set, M.beam, [-9, 7, -11.2], [9, 7.3, 5.2], 2, true);
     };
@@ -161,7 +161,8 @@ export class World {
     cam.layers.enable(NOINK);
     this.hemi.color.set(L.sky); this.hemi.groundColor.set(L.ground); this.hemi.intensity = L.hemiI;
     this.sun.color.set(L.sunCol); this.sun.intensity = L.sunI;
-    const centre = V(c.look[0], 1.0, c.look[2]);
+    const SC: Record<SetName, [number, number]> = { space: [0, -8], office: [0, -3], obs: [0, -3], town: [0, -12], camp: [0, -4], grid: [0, -25] };
+    const centre = V(ORG[sh.set][0] + SC[sh.set][0], 1.0, ORG[sh.set][2] + SC[sh.set][1]);   // fixed per set: no shadow swimming while the camera moves
     this.sun.position.copy(centre).addScaledVector(SUN, 40); this.sun.target.position.copy(centre);
     const Rr = RADIUS[sh.set], sc = this.sun.shadow.camera;
     sc.left = -Rr; sc.right = Rr; sc.top = Rr; sc.bottom = -Rr; sc.near = 4; sc.far = 120; sc.updateProjectionMatrix();
