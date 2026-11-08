@@ -1,0 +1,4 @@
+# The Defenestration of Prague (1618), 78 s, voice only (ElevenLabs James, excited), camera = holds + quick eased travels, bouncy movement animation
+Documented: 23 May 1618, Prague Castle; Protestant nobles threw two Catholic regents (Slavata, Martinic) and their secretary (Fabricius) out of a window; all survived (Catholics: angels / Virgin Mary; Protestants: a dung heap); Fabricius was ennobled as "von Hohenfall"; the revolt began the Thirty Years' War (1618-1648).
+Flag / unverified: fall height ("more than fifteen meters", sources say ~15-21 m); "millions died" and "some regions lost a third or more" (estimates vary widely); the Bohemian "rights" scene, the crowd march and the exact shouting are staged colour; the emperor's anger is dramatised.
+CTA ties back to the story: "if you like history where one pile of manure changes the world, follow for more stories like this".
