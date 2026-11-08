@@ -90,9 +90,11 @@ export class World {
     bx(M.carpet, [KZ - 6, 0.02, -4], [KZ + 6, 0.08, 7]); bx(M.stone, [KZ - 1.2, 0, -3.6], [KZ + 1.2, 0.9, -2.4]); bx(M.plaster, [KZ - 9, 0, -9.2], [KZ + 9, 7, -8.8]);
     for (const x of [-7, -3.5, 3.5, 7]) { put(cyl(0.55, 6.4, 14), M.stone, KZ + x, 3.2, -8.0); bx(M.stone, [KZ + x - 0.8, 6.4, -8.8], [KZ + x + 0.8, 6.8, -7.2]); }
     for (const x of [-6, 6]) { put(cyl(0.06, 2.6, 8), M.iron, KZ + x, 1.3, 2); flame(KZ + x, 2.8, 2, 0.18); }
+    // two cannons behind the armies on the hook field, aimed at the middle
+    for (const sd of [-1, 1]) { const cx = 60 + sd * 4.8, cz = -6.4; put(cyl(0.22, 1.8, 10, 0.3), M.iron, cx, 0.9, cz, new THREE.Matrix4().makeRotationZ(sd * (Math.PI / 2 - 0.05))); for (const dz of [-0.45, 0.45]) put(cyl(0.5, 0.12, 14), M.beam, cx, 0.5, cz + dz, new THREE.Matrix4().makeRotationX(Math.PI / 2)); bx(M.beam, [cx - 0.4, 0.4, cz - 0.3], [cx + 0.4, 0.9, cz + 0.3]); }
     // tombstone + a few trees
     bx(M.stone, [TOMB[0] - 1.3, 0, TOMB[2] - 0.5], [TOMB[0] + 1.3, 0.25, TOMB[2] + 0.5]);
-    [[-70, -10], [-44, -11], [-20, -11], [0, -11], [30, -11], [52, -11], [-48, 15], [-12, 15], [24, 15], [60, 14], [-70, 14]].forEach(([x, z]) => { put(cyl(0.2, 1.4, 6), M.beam, x, 0.7, z); put(cyl(1.7, 4.4, 8, 0.1), M.green, x, 3.5, z); });
+    [[-70, -10], [-44, -11], [-20, -11], [0, -11], [30, -11], [52, -11], [-48, 15], [-12, 15], [24, 15], [76, 14], [-70, 14]].forEach(([x, z]) => { put(cyl(0.2, 1.4, 6), M.beam, x, 0.7, z); put(cyl(1.7, 4.4, 8, 0.1), M.green, x, 3.5, z); });
     b.build(R);
     // five warships (hull, masts, sails, flag): animated in update()
     for (let k = 0; k < 5; k++) {

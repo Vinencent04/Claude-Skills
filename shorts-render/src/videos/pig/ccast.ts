@@ -149,6 +149,7 @@ const mapC = (stamped: boolean) => (p: Pen) => { p.poly(rr(10, 10, 390, 290, 14)
 const stampC = (p: Pen) => { p.poly(rr(60, 150, 180, 250, 12), "#b45a3a", 8); p.poly(rr(100, 30, 140, 160, 12), "#6a3a22", 8); p.poly(rr(60, 150, 180, 190, 10), "#2a3f8a", 8); };
 const bangC = (p: Pen) => { p.poly([[20, 100], [70, 20], [120, 90], [200, 10], [240, 90], [330, 40], [330, 140], [250, 190], [190, 150], [120, 200], [70, 150]], "#ffe066", 10); const g = p.g; font(g, 64); g.fillStyle = "#c92a2e"; g.fillText("BANG!", 180, 100); };
 const flagUS = (p: Pen) => { for (let i = 0; i < 7; i++) p.poly([[10, 10 + i * 17], [150, 10 + i * 17], [150, 27 + i * 17], [10, 27 + i * 17]], i % 2 ? "#f6f3ea" : "#c8352a", 2); p.poly([[10, 10], [70, 10], [70, 70], [10, 70]], "#2a3f8a", 3); };
+const flagUKc = (p: Pen) => { p.poly([[10, 10], [150, 10], [150, 110], [10, 110]], "#1f2f7a", 3); p.stroke([[10, 10], [150, 110]], 16, "#f6f3ea"); p.stroke([[150, 10], [10, 110]], 16, "#f6f3ea"); p.stroke([[80, 10], [80, 110]], 26, "#f6f3ea"); p.stroke([[10, 60], [150, 60]], 26, "#f6f3ea"); p.stroke([[80, 10], [80, 110]], 14, "#c8352a"); p.stroke([[10, 60], [150, 60]], 14, "#c8352a"); };
 const confettiC = (col: string) => (p: Pen) => { p.poly([[2, 2], [22, 6], [18, 24], [0, 18]], col, 2); };
 
 // ---------------- the stage ----------------
@@ -162,12 +163,14 @@ type PigS = { x: number; y: number; z: number; rot: number; st: "run" | "eat" | 
 const pigY = (p: PigS) => p.y + p.bn.dy + 2.2 * p.sc * p.bn.sy * (p.st === "dead" ? 0.3 : 0.36);
 const pigAt = (t: number): PigS => {
   const o: PigS = { x: 0, y: 0, z: 0, rot: 0, st: "happy", dir: 1, hd: 0, ph: 0, sc: 1, vis: false, bn: NB };
-  if (t < 7.2) {                                                         // hook hero: a big, bouncy, smug pig on the field
-    const hp = hop(t, 5, 1.6, 0.35, 0.1), flop = spr(t - T.T_PIGDEAD, 6, 14);
-    o.vis = true; o.x = 0; o.z = 0.2; o.sc = 1.2; o.dir = 1; o.st = t < T.T_PIGDEAD ? "happy" : "dead"; o.rot = t < T.T_PIGDEAD ? 0 : -0.25 * flop;
-    o.bn = t < T.T_PIGDEAD ? idle(t, 5, 2) : { dy: 0, sx: 1 + 0.2 * pulse(t - T.T_PIGDEAD, 0.4), sy: 1 - 0.3 * pulse(t - T.T_PIGDEAD, 0.4), lean: 0 };
-    o.y = t < T.T_PIGDEAD ? 0 : 0.1 * (1 - flop);
-    if (t > 5.2 && t < T.T_PIGDEAD) { o.rot = 0.12 * Math.sin(t * 30) * (t - 5.2); }   // shivering before it keels over
+  if (t < 8.4) {                                                         // hook: a small, smug pig between the armies: grazes, looks up, keels over
+    const flop = spr(t - T.T_PIGDEAD, 6, 14), ph = Math.sin(t * 9);
+    o.vis = true; o.x = 0; o.z = 0.2; o.sc = 0.9; o.dir = 1;
+    o.st = t < T.T_PIGDEAD ? (t < T.T_WAR ? "eat" : "happy") : "dead";
+    o.hd = t < T.T_WAR ? 0.5 + 0.5 * Math.abs(ph) : 0;
+    o.bn = t < T.T_PIGDEAD ? (t < T.T_WAR ? { dy: 0, sx: 1 + 0.03 * ph, sy: 1 - 0.03 * ph, lean: 0.03 * Math.sin(t * 4.5) } : idle(t, 5, 2)) : { dy: 0, sx: 1 + 0.2 * pulse(t - T.T_PIGDEAD, 0.4), sy: 1 - 0.3 * pulse(t - T.T_PIGDEAD, 0.4), lean: 0 };
+    o.rot = t < T.T_PIGDEAD ? (t > 5.2 ? 0.1 * Math.sin(t * 30) * (t - 5.2) : 0) : -0.25 * flop;
+    if (t >= T.T_PIGDEAD && t < T.T_PIGDEAD + 0.6) o.y = 0.5 * Math.sin(Math.PI * (t - T.T_PIGDEAD) / 0.6);
     return o;
   }
   if (t >= T.T_FOUND - 0.6 && t < T.T_SHOT) {                           // trots in from the east, then munches potatoes
@@ -202,18 +205,24 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   const stride = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, dirx: number, speed = 1.6, arms: FrontOpts["arms"] = { l: [-0.5, 0.2], r: [0.5, 0.2] }, sc = 1) => s.who(i, o, ok, x, 0, z, { mode: "stroll", phase: q(((t * speed * 0.7 + hh(i, 4)) % 1 + 1) % 1, 12), expr, arms }, sc, true, walk(t, i, speed, dirx));
   const cheer = (i: number, o: Outfit, ok: string, x: number, z: number, rate = 1.6, h = 0.14, sc = 1) => { const w = Math.sin(t * 9 + i); who(i, o, ok, x, z, i % 2 ? "laugh" : "grin", { arms: { l: [-0.55, ar(-0.9 + 0.2 * w)], r: [0.55, ar(-0.9 - 0.2 * w)] } }, sc, hop(t, i, rate, h)); };
 
-  // ================= 0 - 7.4: the hook =================
-  if (t < 7.6) {
+  // ================= 0 - 7.6: the hook: two armies, two flags, two cannons, ONE pig in the middle =================
+  if (t < 8.4) {
     const war = t >= T.T_WAR, shock = t >= T.T_PIGDEAD;
     for (let k = 0; k < 5; k++) for (const side of [-1, 1] as const) {
-      const i = 10 + k * 2 + (side > 0 ? 1 : 0), x = HX + side * (3.4 + 0.3 * (k % 2)), z = -3.6 + 1.9 * k, o = side < 0 ? USA(k) : BRIT(k);
-      const big = war && !shock ? idle(t, i, 1.5) : shock ? { dy: 0, sx: 1 + 0.08 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), sy: 1 - 0.1 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), lean: 0.05 * Math.sin(t * 20 + k) * Math.exp(-3 * (t - T.T_PIGDEAD)) } : idle(t, i, 1.4);
+      const i = 10 + k * 2 + (side > 0 ? 1 : 0), o = side < 0 ? USA(k) : BRIT(k), hx = HX + side * (4.3 + 0.35 * (k % 2)), tx = HX + side * (2.2 + 0.3 * (k % 2)), z = -4.2 + 2.1 * k;
+      const u = clamp01((t - (T.T_WAR + 0.07 * k)) / 1.1), x = lerp(hx, tx, glide(u)), charging = u > 0 && u < 1, dirx = -side;
       const sw = Math.sin(t * 11 + k * 1.7);
-      who(i, o, `h${side}${k % 3}${war ? "w" : "s"}`, x, z, shock ? "shock" : war ? "stern" : t > T.T_AMERICA ? "stern" : "neutral", { arms: war && !shock ? { l: [-0.55, ar(-0.85 + 0.2 * sw)], r: [0.55, ar(-0.85 - 0.2 * sw)] } : { l: [-0.4, 0.3], r: [0.45, 0.3] }, headTilt: war && !shock ? ar(0.07 * sw) : 0 }, 1.05, big);
+      if (charging) { stride(i, o, `h${side}${k % 3}c`, x, z, "stern", dirx, 2.6, { l: [-0.55, -0.85], r: [0.55, -0.85] }, 1.05); continue; }
+      const raised = war && !shock;
+      const bn = shock ? { dy: 0, sx: 1 + 0.08 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), sy: 1 - 0.1 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), lean: 0.05 * Math.sin(t * 20 + k) * Math.exp(-3 * (t - T.T_PIGDEAD)) } : idle(t, i, 1.5);
+      who(i, o, `h${side}${k % 3}${raised ? "w" : "s"}`, x, z, shock ? "shock" : raised || t > T.T_AMERICA ? "stern" : "neutral", { arms: raised ? { l: [-0.55, ar(-0.85 + 0.2 * sw)], r: [0.55, ar(-0.85 - 0.2 * sw)] } : { l: [-0.4, 0.3], r: [0.45, 0.3] }, headTilt: raised ? ar(0.07 * sw) : 0 }, 1.05, bn);
     }
-    s.fx("fUS", 160, 120, flagUS, HX - 4.8, 3.2, -5, 1.6, 1.2, { rot: 0.1 * Math.sin(t * 4) }); s.fx("fUK", 160, 120, flagUS, HX + 4.8, 3.2, -5, 1.6, 1.2, { rot: -0.1 * Math.sin(t * 4) });
-    burstAt(T.T_WAR, HX, 2.4, 0.3, 7, 0.5, "#ffe9a0");
-    if (t >= T.T_PIG - 0.1 && t < T.T_DIED) s.fx("hrt", 100, 100, heart, HX + 1.6, 3.6 + 0.3 * Math.sin(t * 6), 0.4, 0.9 * pop(t - T.T_PIG, 0.4), 0.9 * pop(t - T.T_PIG, 0.4));
+    s.fx("fUS", 160, 120, flagUS, HX - 5.6, 3.6, -6.4, 1.8, 1.35, { rot: 0.08 * Math.sin(t * 4) }); s.fx("fUK", 160, 120, flagUKc, HX + 5.6, 3.6, -6.4, 1.8, 1.35, { rot: -0.08 * Math.sin(t * 4) });
+    // cannons fire when the war starts
+    for (const [tf, sd] of [[3.3, -1], [3.7, 1], [4.1, -1], [4.5, 1]] as const) { burstAt(tf, HX + sd * 3.4, 1.3, -6.0, 2.4, 0.35, "#ffd27a"); for (let m = 0; m < 3; m++) puffAt(tf + 0.05 * m, HX + sd * (3.0 - 0.5 * m), -6.0, 1.4, 1.0); }
+    if (t >= T.T_PIG - 0.1 && t < T.T_DIED + 0.4) s.fx("hrt", 100, 100, heart, HX + 1.4, 3.1 + 0.3 * Math.sin(t * 6), 0.4, 0.9 * pop(t - T.T_PIG, 0.4), 0.9 * pop(t - T.T_PIG, 0.4));
+    if (t >= T.T_AMERICA && t < T.T_AMERICA + 0.9) s.fx("tUS", 600, 240, plate("AMERICA", "", "#2a3f8a", "#ffffff"), HX - 3.6, 4.4, 0.4, 3.0 * pop(t - T.T_AMERICA, 0.35), 1.2 * pop(t - T.T_AMERICA, 0.35), { rot: -0.03 });
+    if (t >= T.T_BRITAIN && t < T.T_BRITAIN + 0.9) s.fx("tUK", 600, 240, plate("BRITAIN", "", "#c8352a", "#ffffff"), HX + 3.6, 4.4, 0.4, 3.0 * pop(t - T.T_BRITAIN, 0.35), 1.2 * pop(t - T.T_BRITAIN, 0.35), { rot: 0.03 });
     for (let k = 0; k < 3; k++) puffAt(T.T_PIGDEAD + 0.1 * k, HX - 1 + k, 0.8, 2.0, 0.8);
     if (t >= T.T_PIGDEAD) s.fx("dedx", 100, 100, bang, HX + 1.8, 3.6, 0.4, 1.4 * pop(t - T.T_PIGDEAD), 1.4 * pop(t - T.T_PIGDEAD));
     const pg = pigAt(t);
@@ -221,9 +230,9 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   }
 
   // ================= 7.4 - 12: San Juan Island (aerial): both flags, the claim =================
-  if (t >= 7.0 && t < 12.2) {
-    s.fx("sj", 600, 240, plate("SAN JUAN", "ISLAND", "#2a1a10", "#ffd84a"), 12, 9.5, 0, 9 * pop(t - T.T_SAN, 0.35), 3.6 * pop(t - T.T_SAN, 0.35), { rot: -0.03 });
-    if (t >= T.T_CLAIM - 0.6) { const e = pop(t - T.T_CLAIM + 0.6, 0.3); s.fx("cUS", 160, 120, flagUS, -2, 6, -4, 3.2 * e, 2.4 * e, { rot: 0.1 * Math.sin(t * 4) }); s.fx("cUK", 160, 120, flagUS, 26, 6, -4, 3.2 * e, 2.4 * e, { rot: -0.1 * Math.sin(t * 4) }); }
+  if (t >= 7.6 && t < 12.2) {
+    s.fx("sj", 600, 240, plate("SAN JUAN", "ISLAND", "#2a1a10", "#ffd84a"), 12, 9.5, 0, 9 * pop(t - T.T_SAN - 0.2, 0.35), 3.6 * pop(t - T.T_SAN - 0.2, 0.35), { rot: -0.03 });
+    if (t >= T.T_CLAIM - 0.6) { const e = pop(t - T.T_CLAIM + 0.6, 0.3); s.fx("cUS", 160, 120, flagUS, -2, 6, -4, 3.2 * e, 2.4 * e, { rot: 0.1 * Math.sin(t * 4) }); s.fx("cUK", 160, 120, flagUKc, 26, 6, -4, 3.2 * e, 2.4 * e, { rot: -0.1 * Math.sin(t * 4) }); }
   }
 
   // ================= 11.2 - 22.8: the farm =================
@@ -286,7 +295,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     who(70, ADMIRAL, "adm", BRC, 0.2, expr, { arms, headTilt: refuse ? ar(0.25 * Math.sin(t * 15) * Math.exp(-1.8 * (t - T.T_REFUSE)) * (said ? 0 : 1)) : 0 }, 1.45, bn);
     for (let k = 0; k < 2; k++) who(71 + k, BRIT(k, { hat: "bicorne", sword: true, rifle: false, sash: "#f0ece0" }), `off${k}`, BRC + (k ? 3.2 : -3.0), 1.0, refuse ? "shock" : "stern", { arms: { l: [-0.4, 0.3], r: [0.4, 0.3] } }, 1.2, refuse ? { dy: 0.12 * pulse(t - T.T_REFUSE - 0.05 * k, 0.35), sx: 1 - 0.06 * pulse(t - T.T_REFUSE - 0.05 * k, 0.3), sy: 1 + 0.08 * pulse(t - T.T_REFUSE - 0.05 * k, 0.3), lean: 0 } : idle(t, 71 + k, 1.5));
     if (refuse && t < T.T_SAID) s.fx("nope", 200, 200, nope, BRC + 1.8, 3.6, 0.3, 1.5 * pop(t - T.T_REFUSE, 0.5), 1.5 * pop(t - T.T_REFUSE, 0.5), { rot: 0.1 });
-    if (said) { const e = pop(t - T.T_SAID, 0.3); s.fx("thk", 200, 200, think, BRC - 1.6, 4.3, 0.4, 3.0 * e, 3.0 * e); if (t >= 36.8) s.fx("nope", 200, 200, nope, BRC - 1.6, 4.4, 0.45, 1.5 * pop(t - 36.8, 0.5), 1.5 * pop(t - 36.8, 0.5), { rot: 0.1 }); }
+    if (t >= 35.2) { const e = pop(t - 35.2, 0.35); s.fx("fool", 600, 240, plate("FOOLISH!", "", "#c92a2e", "#ffffff"), BRC - 1.2, 4.6, 0.5, 3.4 * e, 1.36 * e, { rot: -0.04 }); }
     for (let n = 0; n < 10; n++) { const c = n % 5, r = Math.floor(n / 5); who(160 + n, BRIT(n + 3), `bk${n % 4}s`, BRC - 5 + c * 2.4, -3 - r * 1.4, refuse ? "shock" : "stern", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1, refuse ? { dy: 0.08 * pulse(t - T.T_REFUSE - 0.03 * n, 0.35), sx: 1, sy: 1 + 0.05 * pulse(t - T.T_REFUSE - 0.03 * n, 0.3), lean: 0 } : idle(t, n, 2)); }
   }
 
