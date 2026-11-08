@@ -291,8 +291,8 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     }
     if (t >= T.T_DEMAND - 0.1 && t < T.T_SHOUT + 2.2) for (let k = 0; k < 3; k++) s.fx("q", 120, 120, qmark, -3 + 3 * k, 3.6 + 0.2 * Math.sin(t * 6 + k), -2, 1.0 * pop(t - T.T_DEMAND - 0.12 * k), 1.0 * pop(t - T.T_DEMAND - 0.12 * k));
     if (t >= T.T_SHOUT && t < 36.8) for (let k = 0; k < 4; k++) { const e = (t * 1.8 + k / 4) % 1; s.fx("bg", 120, 120, bang, -4 + 2.7 * k, 3.2 + 1.5 * e, -2.4, 0.5 + 0.5 * e, 0.5 + 0.5 * e); }
-    windowScene(T.T_HURL, true, "s", 32.8);
   }
+  if (t >= 32.0 && t < 44.8) windowScene(T.T_HURL, true, "s", 32.8);
 
   // ================= 38.1 - 44.4: angels (Catholics) vs horse dung (Protestants) =================
   if (t >= T.T_HURL + 1.2 && t < 44.8) {
@@ -305,8 +305,6 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     for (let k = 0; k < 3; k++) { if (t >= T.T_CATH) cheer(120 + k, OFFICIAL(k + 2), `cath${k}`, -6 + 1.2 * k, 3 + 0.3 * k, 1.4, 0.12, 1.15); }
     for (let k = 0; k < 3; k++) { if (t >= T.T_PROTS) { const w = Math.sin(t * 9 + k); who(125 + k, CITIZEN(k), `prt${k}`, 4.2 + 1.2 * k, 3 + 0.3 * k, "laugh", { arms: { l: [-0.5, 0.3], r: [0.55, ar(-0.3 + 0.2 * w)] } }, 1.15, { dy: 0, sx: 1, sy: 1 + 0.02 * Math.abs(w), lean: 0.05 * w }); } }
   }
-  // the three survivors remain in the pile (cards are drawn by the hook / story window scenes while their phase is "pile")
-  if (t >= T.T_HURL + 1.5 && t < 44.8) for (let k = 0; k < 3; k++) { const fl = fallOf(t, T.T_HURL, k); s.who(80 + k, k < 2 ? OFFICIAL(k) : SECRETARY, `sv${k}`, fl.x, fl.y, fl.z, { mode: "stand", expr: t > T.T_PROTS ? "pained" : "grin", arms: { l: [-0.55, -0.9], r: [0.55, -0.9] } }, k < 2 ? 1.05 : 0.95, true, idle(t, 80 + k, 1.5)); }
 
   // ================= 44.4 - 53.6: Philipp von Hohenfall; the emperor is not amused =================
   if (t >= 44.0 && t < 53.9) {
@@ -321,9 +319,9 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     who(61, SECRETARY, "secH", hx - 1.3, 1.6, kn ? "grin" : "nervous", { arms: { l: [-0.4, 0.35], r: [0.4, 0.35] }, headTilt: kn ? 0.0 : 0.28 }, 1.0, kn ? { dy: 0.25 * pulse(tapU - 0.1, 0.6), sx: 1 - 0.05 * up, sy: 1 + 0.08 * Math.min(1.2, up), lean: 0 } : { dy: 0, sx: 1.04, sy: 0.88, lean: 0.12 });
     for (let k = 0; k < 4; k++) who(62 + k, k % 2 ? OFFICIAL(k) : IMP(k), `hall${k}`, hx - 6 + 4 * k + (k > 1 ? 4 : 0), 3.2 + 0.4 * (k % 2), mad ? "shock" : "smile", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1.1, mad ? { dy: 0.1 * pulse(t - T.T_EMP - 0.05 * k, 0.4), sx: 1, sy: 1 + 0.06 * pulse(t - T.T_EMP - 0.05 * k, 0.3), lean: 0 } : idle(t, 62 + k, 1.5));
     if (kn && !mad) { burstAt(T.T_TITLE + 0.1, hx - 1.0, 2.4, 1.2, 3.6, 0.4, "#ffe9a0"); for (let k = 0; k < 5; k++) { const a = (k / 5) * 6.28; if (tapU < 0.9) s.fx("sp", 60, 60, spark, hx - 1.3 + tapU * 2.6 * Math.cos(a), 2.6 + tapU * 2.4 * Math.sin(a), 1.6, 0.3, 0.3); } }
-    if (t >= T.T_SECR && t < T.T_TITLE) s.fx("sc", 300, 160, scroll("NOBLE TITLE"), hx - 0.4, 4.0 + 0.1 * Math.sin(t * 4), 1.0, 2.2 * pop(t - T.T_SECR, 0.35), 1.2 * pop(t - T.T_SECR, 0.35), { rot: -0.04 });
-    if (t >= T.T_HOHEN - 0.3 && t < T.T_EMP + 0.3) { const e = pop(t - T.T_HOHEN + 0.3, 0.35); s.fx("hoh", 600, 240, plate("PHILIPP", "VON HOHENFALL", "#2a1a10", "#ffd84a"), hx, 4.9, 1.0, 5.6 * e, 2.24 * e, { rot: -0.03 }); }
-    if (t >= 50.0 && t < T.T_EMP + 0.3) { const e = pop(t - 50.0, 0.4); s.fx("shd", 200, 220, shield, hx + 3.0, 2.4, 1.2, 2.0 * e, 2.2 * e, { rot: 0.06 }); s.fx("hf", 600, 240, plate("= OF THE HIGH FALL", "", "#2a3f8a", "#ffffff"), hx, 2.6, 2.4, 5.2 * pop(t - 50.0, 0.4), 1.04 * pop(t - 50.0, 0.4), { rot: 0.03 }); }
+    if (t >= T.T_SECR && t < T.T_TITLE) s.fx("sc", 300, 160, scroll("NOBLE TITLE"), hx - 0.9, 3.7 + 0.08 * Math.sin(t * 4), 1.0, 2.2 * pop(t - T.T_SECR, 0.35), 1.18 * pop(t - T.T_SECR, 0.35), { rot: -0.04 });
+    if (t >= T.T_HOHEN - 0.3 && t < T.T_EMP + 0.3) { const e = pop(t - T.T_HOHEN + 0.3, 0.35); s.fx("hoh", 600, 240, plate("PHILIPP", "VON HOHENFALL", "#2a1a10", "#ffd84a"), hx, 4.8, 1.0, 3.0 * e, 1.2 * e, { rot: -0.03 }); }
+    if (t >= 50.0 && t < T.T_EMP + 0.3) { const e = pop(t - 50.0, 0.4); s.fx("shd", 200, 220, shield, hx + 1.5, 2.6, 1.2, 1.3 * e, 1.43 * e, { rot: 0.06 }); s.fx("hf", 600, 240, plate("OF THE", "HIGH FALL", "#2a3f8a", "#ffffff"), hx - 0.1, 1.3, 2.0, 2.2 * pop(t - 50.0, 0.4), 0.9 * pop(t - 50.0, 0.4), { rot: 0.03 }); }
     if (mad) for (let k = 0; k < 4; k++) { const u = (t * 1.2 + k / 4) % 1; s.fx("stm", 200, 200, steam, hx - 0.8 + 0.5 * k, 3.6 + 1.4 * u, 0.6, 0.9, 0.9, { soft: true }); }
     if (mad) s.fx("bg", 120, 120, bang, hx + 1.8, 4.2, 0.6, 1.4 * pop(t - T.T_EMP), 1.4 * pop(t - T.T_EMP));
   }
@@ -357,7 +355,6 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   // ================= 67 - 78: "a short flight, a very soft place" (replay) and the pile that changed the world =================
   if (t >= 66.4) {
     windowScene(T.T_FLIGHT, false, "r", 66.8);
-    if (t < T.T_FLIGHT + 0.4) for (let k = 0; k < 3; k++) { const x = T.WIN[0] + [-0.6, 0.6, 0][k]; if (t >= 66.8) who(76 + k, k < 2 ? OFFICIAL(k) : SECRETARY, `rp${k}`, x, T.WIN[2] + 0.2, "nervous", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] } }, k < 2 ? 1.05 : 0.95, idle(t, 76 + k, 1.5), T.WIN[1]); }
     if (t >= T.T_CTA - 0.2) {
       const glow = 1 + 0.08 * Math.sin(t * 3);
       s.fx("pg", 200, 200, glowC("255,214,120"), PX, 1.2, PZ + 1.2, 6.0 * glow, 6.0 * glow, { soft: true });
