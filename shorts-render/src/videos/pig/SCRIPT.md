@@ -1,0 +1,3 @@
+# The Pig War (1859), 55 s, voice only (ElevenLabs James, excited: stability 0.15 / style 1.0), one continuous camera path, bouncy squash/stretch cast
+Documented: June 1859, San Juan Island (disputed after the Oregon Treaty); American farmer Lyman Cutlar shot a pig belonging to the Hudson's Bay Company; US troops (Capt. Pickett) and British warships escalated; the British admiral (Baynes) refused to start a war over a pig; 12 years of joint occupation; 1872 arbitration by Kaiser Wilhelm I gave the island to the US; only casualty: the pig.
+Flag / unverified: exact troop and ship numbers ("hundreds of men", "five warships"); the admiral's wording ("foolish to fight over a pig") is a paraphrase; the farm, tombstone and dinner-party scenes are staged colour.
