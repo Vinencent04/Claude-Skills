@@ -97,7 +97,7 @@ const flameC = (p: Pen) => { p.poly([[100, 6], [150, 80], [172, 150], [140, 196]
 const spark = (p: Pen) => { p.poly([[30, 2], [36, 24], [58, 30], [36, 36], [30, 58], [24, 36], [2, 30], [24, 24]], "#fff3a0", 0); };
 const smoke = (p: Pen) => { const g = p.g; for (let i = 0; i < 6; i++) { const x = 100 + 40 * Math.cos(i * 1.9), y = 100 + 30 * Math.sin(i * 1.4), r = 52; const gr = g.createRadialGradient(x, y, 4, x, y, r); gr.addColorStop(0, "rgba(120,100,80,0.7)"); gr.addColorStop(1, "rgba(120,100,80,0)"); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); } };
 const starC = (p: Pen) => { p.poly([[30, 4], [38, 24], [58, 26], [42, 38], [48, 58], [30, 46], [12, 58], [18, 38], [2, 26], [22, 24]], "#fff3b0", 2); };
-const plate = (l1: string, l2: string, bg = "#2a1a10", fg = "#ffd84a") => (p: Pen) => { const g = p.g; p.poly(rr(10, 10, 590, 230, 24), bg, 10); font(g, l2 ? 74 : 110); g.fillStyle = fg; if (l2) { g.fillText(l1, 300, 80); g.fillText(l2, 300, 170); } else g.fillText(l1, 300, 120); };
+const plate = (l1: string, l2: string, bg = "#2a1a10", fg = "#ffd84a") => (p: Pen) => { const g = p.g; p.poly(rr(10, 10, 590, 230, 24), bg, 10); font(g, l2 ? Math.min(74, 540 / (Math.max(l1.length, l2.length) * 0.62)) : Math.min(110, 540 / (l1.length * 0.62))); g.fillStyle = fg; if (l2) { g.fillText(l1, 300, 80); g.fillText(l2, 300, 170); } else g.fillText(l1, 300, 120); };
 const qmark = (p: Pen) => { const g = p.g; font(g, 150); g.lineWidth = 14; g.strokeStyle = "#1a1a24"; g.strokeText("?", 60, 70); g.fillStyle = "#ffe066"; g.fillText("?", 60, 70); };
 const bang = (p: Pen) => { const g = p.g; font(g, 150); g.lineWidth = 14; g.strokeStyle = "#1a1a24"; g.strokeText("!", 60, 70); g.fillStyle = "#ff5a4a"; g.fillText("!", 60, 70); };
 const zzz = (p: Pen) => { const g = p.g; font(g, 70); g.lineWidth = 8; g.strokeStyle = "#1a1a24"; g.strokeText("Z z z", 100, 50); g.fillStyle = "#e8f0ff"; g.fillText("Z z z", 100, 50); };
@@ -329,10 +329,10 @@ export const stage = (f: number, cam: CamInfo): Stage => {
       who(190 + k, o, `mo${us ? "u" : "b"}${k % 4}`, x, z, "pained", { headTilt: 0.28, arms: { l: [-0.3, 0.55], r: [0.3, 0.55] } }, 1.1, { dy: 0.02 * Math.abs(sob), sx: 1 + 0.02 * sob, sy: 1 - 0.02 * sob, lean: 0.03 * Math.sin(t * 2 + k) });
       if (k % 2 === 0) for (let m = 0; m < 2; m++) { const u = (t * 1.2 + m / 2 + hh(k, 2)) % 1; s.fx("tr", 30, 40, tear, x - 0.28 + 0.56 * m, 2.5 - 1.4 * u * u, z + 0.1, 0.18, 0.24); }
     }
-    if (t >= T.T_ZERO && t < T.T_CASUALTY) s.fx("z0", 600, 240, plate("BATTLES: 0", "", "#2a3f8a", "#ffffff"), TOMB[0], 5.8, -1, 4.4 * pop(t - T.T_ZERO, 0.35), 1.76 * pop(t - T.T_ZERO, 0.35), { rot: -0.03 });
-    if (t >= T.T_CASUALTY) s.fx("z1", 600, 240, plate("CASUALTIES: 1", "", "#c92a2e", "#ffffff"), TOMB[0], 5.8, -1, 5.6 * pop(t - T.T_CASUALTY, 0.35), 2.24 * pop(t - T.T_CASUALTY, 0.35), { rot: 0.03 });
+    if (t >= T.T_ZERO && t < T.T_CASUALTY) s.fx("z0", 600, 240, plate("0 BATTLES", "", "#2a3f8a", "#ffffff"), TOMB[0] + 0.2, 4.7, 0.6, 2.6 * pop(t - T.T_ZERO, 0.35), 1.04 * pop(t - T.T_ZERO, 0.35), { rot: -0.03 });
+    if (t >= T.T_CASUALTY) s.fx("z1", 600, 240, plate("1 CASUALTY", "", "#c92a2e", "#ffffff"), TOMB[0] + 0.2, 4.7, 0.6, 2.7 * pop(t - T.T_CASUALTY, 0.35), 1.08 * pop(t - T.T_CASUALTY, 0.35), { rot: 0.03 });
     const pg = pigAt(t);
-    if (pg.vis && t >= T.T_CASUALTY - 0.2) { s.fx(`pig${pg.st}${q(pg.ph, 6)}`, 300, 220, pigC(0, "ghost", 1, 0), pg.x, pg.y + pg.bn.dy, pg.z, 3.0 * pg.sc * pg.bn.sx, 2.2 * pg.sc * pg.bn.sy, { rot: pg.bn.lean }); s.fx("gh", 200, 200, glowWhite, pg.x, pg.y + 0.9, pg.z - 0.1, 3.4, 3.4, { soft: true }); }
+    if (pg.vis && t >= T.T_CASUALTY - 0.2) { s.fx(`pig${pg.st}${q(pg.ph, 6)}`, 300, 220, pigC(0, "ghost", 1, 0), pg.x, pg.y + pg.bn.dy, pg.z, 3.0 * pg.sc * pg.bn.sx, 2.2 * pg.sc * pg.bn.sy, { rot: pg.bn.lean }); s.fx("gh", 200, 200, glowWhite, pg.x, pg.y + 0.9, pg.z - 0.4, 1.5, 1.5, { soft: true }); }
     if (cta) { confetti(22, TOMB[0], 2, 12); for (let k = 0; k < 5; k++) { const u = (t * 0.7 + k / 5) % 1; s.fx("hrt", 100, 100, heart, TOMB[0] - 2 + k, 1.5 + 4 * u, TOMB[2] + 0.4, 0.5, 0.5); } }
   }
   return s.out;
