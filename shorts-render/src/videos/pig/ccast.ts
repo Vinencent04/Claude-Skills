@@ -17,16 +17,16 @@ const NB: Bn = { dy: 0, sx: 1, sy: 1, lean: 0 };
 const spr = (u: number, k = 7, w = 16) => (u <= 0 ? 0 : 1 - Math.exp(-k * u) * Math.cos(w * u));
 const pulse = (u: number, d: number) => (u <= 0 || u >= d ? 0 : Math.sin((Math.PI * u) / d));
 /** breathing + tiny weight shift */
-const idle = (t: number, i: number, a = 1): Bn => ({ dy: 0, sx: 1 + 0.014 * a * Math.sin(t * 3.1 + i), sy: 1 - 0.016 * a * Math.sin(t * 3.1 + i), lean: 0.014 * a * Math.sin(t * 1.7 + i * 2) });
+const idle = (t: number, i: number, a = 1): Bn => ({ dy: 0, sx: 1 + 0.005 * a * Math.sin(t * 2.4 + i), sy: 1 - 0.006 * a * Math.sin(t * 2.4 + i), lean: 0.004 * a * Math.sin(t * 1.3 + i * 2) });
 /** hops: stretch in the air, squash on landing, lean sway. rate = hops/s, h = height in m */
 const hop = (t: number, i: number, rate: number, h: number, sway = 0.07): Bn => {
   const ph = (t * rate + hh(i, 3)) % 1, air = ph < 0.72 ? Math.sin((Math.PI * ph) / 0.72) : 0, land = ph >= 0.72 ? Math.sin((Math.PI * (ph - 0.72)) / 0.28) : 0, pre = ph > 0.62 && ph < 0.72 ? (ph - 0.62) / 0.1 : 0;
   return { dy: h * air, sx: 1 + 0.15 * land - 0.07 * air + 0.04 * pre, sy: 1 - 0.17 * land + 0.11 * air - 0.05 * pre, lean: sway * Math.sin(2 * Math.PI * (t * rate * 0.5 + hh(i, 5))) };
 };
 /** walking bounce: bob twice per stride, lean into the direction of travel (dirx = screen-space sign of motion) */
-const walk = (t: number, i: number, speed: number, dirx: number, h = 0.07): Bn => {
+const walk = (t: number, i: number, speed: number, dirx: number, h = 0.045): Bn => {
   const ph = ((t * speed * 0.7 + hh(i, 4)) % 1 + 1) % 1, b = Math.abs(Math.sin(2 * Math.PI * ph));
-  return { dy: h * b, sx: 1 - 0.03 * b, sy: 1 + 0.04 * b, lean: -0.1 * dirx + 0.03 * Math.sin(4 * Math.PI * ph) };
+  return { dy: h * b, sx: 1 - 0.02 * b, sy: 1 + 0.03 * b, lean: -0.07 * dirx + 0.02 * Math.sin(4 * Math.PI * ph) };
 };
 const add = (a: Bn, b: Bn): Bn => ({ dy: a.dy + b.dy, sx: a.sx * b.sx, sy: a.sy * b.sy, lean: a.lean + b.lean });
 
@@ -159,12 +159,13 @@ const HX = 60;
 const FARMX = T.FARM, USC = T.USC, BRC = T.BRC, DIN = T.DIN, KZ = T.KZ, TOMB = T.TOMB;
 /** the pig's story: hero in the hook, trots into the garden, gets shot, lies dead, ghost at the end */
 type PigS = { x: number; y: number; z: number; rot: number; st: "run" | "eat" | "dead" | "ghost" | "happy"; dir: 1 | -1; hd: number; ph: number; sc: number; vis: boolean; bn: Bn };
+const pigY = (p: PigS) => p.y + p.bn.dy + 2.2 * p.sc * p.bn.sy * (p.st === "dead" ? 0.3 : 0.36);
 const pigAt = (t: number): PigS => {
   const o: PigS = { x: 0, y: 0, z: 0, rot: 0, st: "happy", dir: 1, hd: 0, ph: 0, sc: 1, vis: false, bn: NB };
   if (t < 7.2) {                                                         // hook hero: a big, bouncy, smug pig on the field
     const hp = hop(t, 5, 1.6, 0.35, 0.1), flop = spr(t - T.T_PIGDEAD, 6, 14);
     o.vis = true; o.x = 0; o.z = 0.2; o.sc = 1.2; o.dir = 1; o.st = t < T.T_PIGDEAD ? "happy" : "dead"; o.rot = t < T.T_PIGDEAD ? 0 : -0.25 * flop;
-    o.bn = t < T.T_PIGDEAD ? hp : { dy: 0, sx: 1 + 0.2 * pulse(t - T.T_PIGDEAD, 0.4), sy: 1 - 0.3 * pulse(t - T.T_PIGDEAD, 0.4), lean: 0 };
+    o.bn = t < T.T_PIGDEAD ? idle(t, 5, 2) : { dy: 0, sx: 1 + 0.2 * pulse(t - T.T_PIGDEAD, 0.4), sy: 1 - 0.3 * pulse(t - T.T_PIGDEAD, 0.4), lean: 0 };
     o.y = t < T.T_PIGDEAD ? 0 : 0.1 * (1 - flop);
     if (t > 5.2 && t < T.T_PIGDEAD) { o.rot = 0.12 * Math.sin(t * 30) * (t - 5.2); }   // shivering before it keels over
     return o;
@@ -199,14 +200,14 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   const confetti = (n: number, x0: number, z0: number, w: number) => { const cols = ["#ff5a7a", "#ffd84a", "#6ab4ff", "#7be07b"]; for (let k = 0; k < n; k++) { const u = (t * 0.5 + hh(k, 2)) % 1; s.fx(`cf${k % 4}`, 40, 40, confettiC(cols[k % 4]), x0 + w * (hh(k, 3) - 0.5) + 0.5 * Math.sin(t * 3 + k), 6 * (1 - u), z0 + 3 * (hh(k, 4) - 0.5), 0.22, 0.22, { rot: t * 4 + k }); } };
   const who = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, fo: Partial<FrontOpts> = {}, sc = 1, bn: Bn = NB, y = 0, shadow = true) => s.who(i, o, ok, x, y, z, { mode: "stand", expr, ...fo }, sc, shadow, bn);
   const stride = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, dirx: number, speed = 1.6, arms: FrontOpts["arms"] = { l: [-0.5, 0.2], r: [0.5, 0.2] }, sc = 1) => s.who(i, o, ok, x, 0, z, { mode: "stroll", phase: q(((t * speed * 0.7 + hh(i, 4)) % 1 + 1) % 1, 12), expr, arms }, sc, true, walk(t, i, speed, dirx));
-  const cheer = (i: number, o: Outfit, ok: string, x: number, z: number, rate = 2.0, h = 0.3, sc = 1) => { const w = Math.sin(t * 9 + i); who(i, o, ok, x, z, i % 2 ? "laugh" : "grin", { arms: { l: [-0.55, ar(-0.9 + 0.2 * w)], r: [0.55, ar(-0.9 - 0.2 * w)] } }, sc, hop(t, i, rate, h)); };
+  const cheer = (i: number, o: Outfit, ok: string, x: number, z: number, rate = 1.6, h = 0.14, sc = 1) => { const w = Math.sin(t * 9 + i); who(i, o, ok, x, z, i % 2 ? "laugh" : "grin", { arms: { l: [-0.55, ar(-0.9 + 0.2 * w)], r: [0.55, ar(-0.9 - 0.2 * w)] } }, sc, hop(t, i, rate, h)); };
 
   // ================= 0 - 7.4: the hook =================
   if (t < 7.6) {
     const war = t >= T.T_WAR, shock = t >= T.T_PIGDEAD;
     for (let k = 0; k < 5; k++) for (const side of [-1, 1] as const) {
       const i = 10 + k * 2 + (side > 0 ? 1 : 0), x = HX + side * (3.4 + 0.3 * (k % 2)), z = -3.6 + 1.9 * k, o = side < 0 ? USA(k) : BRIT(k);
-      const big = war && !shock ? hop(t, i, 2.2, 0.22, 0.1) : shock ? { dy: 0, sx: 1 + 0.08 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), sy: 1 - 0.1 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), lean: 0.05 * Math.sin(t * 20 + k) * Math.exp(-3 * (t - T.T_PIGDEAD)) } : idle(t, i, 1.4);
+      const big = war && !shock ? idle(t, i, 1.5) : shock ? { dy: 0, sx: 1 + 0.08 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), sy: 1 - 0.1 * pulse(t - T.T_PIGDEAD - 0.05 * k, 0.4), lean: 0.05 * Math.sin(t * 20 + k) * Math.exp(-3 * (t - T.T_PIGDEAD)) } : idle(t, i, 1.4);
       const sw = Math.sin(t * 11 + k * 1.7);
       who(i, o, `h${side}${k % 3}${war ? "w" : "s"}`, x, z, shock ? "shock" : war ? "stern" : t > T.T_AMERICA ? "stern" : "neutral", { arms: war && !shock ? { l: [-0.55, ar(-0.85 + 0.2 * sw)], r: [0.55, ar(-0.85 - 0.2 * sw)] } : { l: [-0.4, 0.3], r: [0.45, 0.3] }, headTilt: war && !shock ? ar(0.07 * sw) : 0 }, 1.05, big);
     }
@@ -216,7 +217,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     for (let k = 0; k < 3; k++) puffAt(T.T_PIGDEAD + 0.1 * k, HX - 1 + k, 0.8, 2.0, 0.8);
     if (t >= T.T_PIGDEAD) s.fx("dedx", 100, 100, bang, HX + 1.8, 3.6, 0.4, 1.4 * pop(t - T.T_PIGDEAD), 1.4 * pop(t - T.T_PIGDEAD));
     const pg = pigAt(t);
-    if (pg.vis) s.fx(`pig${pg.st}${pg.dir}${q(pg.ph, 6)}${q(pg.hd, 3)}`, 300, 220, pigC(q(pg.ph, 6), pg.st, pg.dir, q(pg.hd, 3)), pg.x + HX, pg.y + 0.1 + pg.bn.dy, pg.z, 3.0 * pg.sc * pg.bn.sx, 2.2 * pg.sc * pg.bn.sy, { rot: pg.rot + pg.bn.lean });
+    if (pg.vis) s.fx(`pig${pg.st}${pg.dir}${q(pg.ph, 6)}${q(pg.hd, 3)}`, 300, 220, pigC(q(pg.ph, 6), pg.st, pg.dir, q(pg.hd, 3)), pg.x + HX, pigY(pg), pg.z, 3.0 * pg.sc * pg.bn.sx, 2.2 * pg.sc * pg.bn.sy, { rot: pg.rot + pg.bn.lean });
   }
 
   // ================= 7.4 - 12: San Juan Island (aerial): both flags, the claim =================
@@ -230,9 +231,9 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     const cx = FARMX - 3.0, cz = 1.6;
     const arrive = spr(t - T.T_FARMER, 7, 18), shocked = t >= T.T_FOUND, angry = t >= T.T_EAT, gun = t >= T.T_GUN, shot = t >= T.T_SHOT;
     let bn: Bn = idle(t, 1, 1.5), arms: FrontOpts["arms"] = { l: [-0.5, 0.35], r: [0.5, 0.35] }, expr: Expr = "smile";
-    if (t >= T.T_FARMER && t < T.T_FOUND) { bn = hop(t, 1, 1.4, 0.18); arms = { l: [-0.55, 0.3], r: [0.55, ar(-0.8 + 0.2 * Math.sin(t * 9))] }; expr = "grin"; }
+    if (t >= T.T_FARMER && t < T.T_FOUND) { bn = idle(t, 1, 1.5); arms = { l: [-0.55, 0.3], r: [0.55, ar(-0.8 + 0.2 * Math.sin(t * 9))] }; expr = "grin"; }
     if (shocked && !angry) { const u = t - T.T_FOUND; bn = { dy: 0.5 * pulse(u, 0.5), sx: 1 - 0.1 * pulse(u, 0.5), sy: 1 + 0.18 * pulse(u, 0.5), lean: -0.06 * spr(u) }; arms = { l: [-0.55, -0.9], r: [0.55, -0.9] }; expr = "shock"; }
-    if (angry && !gun) { bn = add(hop(t, 1, 3.2, 0.12, 0.15), { dy: 0, sx: 1, sy: 1, lean: 0.04 * Math.sin(t * 30) }); arms = { l: [-0.55, ar(-0.5 + 0.2 * Math.sin(t * 18))], r: [0.55, ar(-0.5 - 0.2 * Math.sin(t * 18))] }; expr = "stern"; }
+    if (angry && !gun) { bn = { dy: 0.04 * Math.abs(Math.sin(t * 11)), sx: 1, sy: 1, lean: 0.03 * Math.sin(t * 22) }; arms = { l: [-0.55, ar(-0.5 + 0.2 * Math.sin(t * 18))], r: [0.55, ar(-0.5 - 0.2 * Math.sin(t * 18))] }; expr = "stern"; }
     if (gun && !shot) { const u = t - T.T_GUN; const crouch = u < 0.5 ? smooth(u / 0.5) : 1; bn = { dy: 0, sx: 1 + 0.08 * crouch, sy: 1 - 0.12 * crouch, lean: 0.12 * crouch }; arms = { l: [-0.4, -0.5], r: [0.4, -0.85] }; expr = "stern"; }
     if (shot) { const u = t - T.T_SHOT; bn = { dy: 0.15 * pulse(u, 0.3), sx: 1 - 0.1 * pulse(u, 0.25) + 0.05 * spr(u - 0.2), sy: 1 + 0.12 * pulse(u, 0.25), lean: -0.2 * Math.exp(-5 * u) * Math.cos(16 * u) - 0.04 }; arms = { l: [-0.45, -0.7], r: [0.45, -0.7] }; expr = u < 1.4 ? "shock" : "dazed"; }
     who(60, FARMER, "farm", cx, cz, expr, { arms, headTilt: ar(0.05 * Math.sin(t * 2)) }, 1.25, add(bn, { dy: 0, sx: 1 + 0.0 * arrive, sy: 1, lean: 0 }));
@@ -244,7 +245,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     if (t >= T.T_EAT - 0.4 && t < T.T_SHOT) for (let k = 0; k < 4; k++) { const u = (t * 2 + k / 4) % 1; s.fx("crm", 60, 60, spark, FARMX - 1.1 - 0.1 * k, 0.4 + 0.5 * u, 1.6, 0.2, 0.2, { rot: t * 6 + k }); }
     // the pig
     const pg = pigAt(t);
-    if (pg.vis && t >= 10) s.fx(`pig${pg.st}${pg.dir}${q(pg.ph, 6)}${q(pg.hd, 3)}`, 300, 220, pigC(q(pg.ph, 6), pg.st, pg.dir, q(pg.hd, 3)), pg.x, pg.y + 0.1 + pg.bn.dy, pg.z, 3.0 * pg.sc * pg.bn.sx, 2.2 * pg.sc * pg.bn.sy, { rot: pg.rot + pg.bn.lean });
+    if (pg.vis && t >= 10) s.fx(`pig${pg.st}${pg.dir}${q(pg.ph, 6)}${q(pg.hd, 3)}`, 300, 220, pigC(q(pg.ph, 6), pg.st, pg.dir, q(pg.hd, 3)), pg.x, pigY(pg), pg.z, 3.0 * pg.sc * pg.bn.sx, 2.2 * pg.sc * pg.bn.sy, { rot: pg.rot + pg.bn.lean });
     // the British company arrives: a clerk with a sign, two redcoats; Cutlar panics
     if (t >= T.T_BRITCO - 0.3) {
       const u = clamp01((t - (T.T_BRITCO - 0.3)) / 2.0), cxk = lerp(FARMX + 8, FARMX - 0.5, glide(u));
@@ -264,14 +265,14 @@ export const stage = (f: number, cam: CamInfo): Stage => {
       const u = clamp01((t - t0) / 2.3), x = lerp(FARMX - 3, tx, glide(u)), z = lerp(2, tz, glide(u));
       const arrived = u >= 1, o = USA(n);
       if (!arrived) stride(100 + n, o, `us${n % 4}m`, x, z, "grin", 1, 2.0, { l: [-0.5, 0.2], r: [0.5, -0.4] });
-      else who(100 + n, o, `us${n % 4}${t > T.T_FACED ? "a" : "s"}`, x, z, t > T.T_HUNDREDS ? "stern" : "grin", { arms: { l: [-0.5, 0.3], r: [0.5, ar(-0.5 + 0.1 * Math.sin(t * 6 + n))] } }, 1, t > T.T_FACED ? idle(t, n, 2) : hop(t, n, 1.8, 0.15, 0.06));
+      else who(100 + n, o, `us${n % 4}${t > T.T_FACED ? "a" : "s"}`, x, z, t > T.T_HUNDREDS ? "stern" : "grin", { arms: { l: [-0.5, 0.3], r: [0.5, ar(-0.5 + 0.1 * Math.sin(t * 6 + n))] } }, 1, idle(t, n, 2));
     }
-    if (t >= T.T_SOLD) who(99, PICKETT, "pick", USC + 2, 0.6, t > T.T_FACED ? "stern" : "grin", { arms: { l: [-0.5, 0.3], r: [0.55, ar(-0.85 + 0.15 * Math.sin(t * 7))] } }, 1.3, hop(t, 99, 1.4, 0.18));
+    if (t >= T.T_SOLD) who(99, PICKETT, "pick", USC + 2, 0.6, t > T.T_FACED ? "stern" : "grin", { arms: { l: [-0.5, 0.3], r: [0.55, ar(-0.85 + 0.15 * Math.sin(t * 7))] } }, 1.3, idle(t, 99, 1.5));
     if (t >= T.T_HUNDREDS && t < T.T_FACED + 1) for (let k = 0; k < 3; k++) s.fx("cnn", 120, 120, spark, USC - 7 + 7 * k, 1.9, -9.6, 0.5, 0.5, { rot: t * 8 });
     // the redcoats line up on the British side
     if (t >= T.T_SHIPS) for (let n = 0; n < 12; n++) { const c = n % 6, r = Math.floor(n / 6), u = clamp01((t - (T.T_SHIPS + 0.05 * n)) / 2.0); const x = lerp(BRC + 22, BRC - 4 + c * 1.8, glide(u)), z = -3.2 - r * 1.4; if (u < 1) stride(150 + n, BRIT(n), `bk${n % 4}m`, x, z, "stern", -1, 2.0, { l: [-0.5, 0.2], r: [0.5, 0.2] }); else who(150 + n, BRIT(n), `bk${n % 4}s`, x, z, "stern", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1, idle(t, n, 2)); }
     // "over one dead pig"
-    if (t >= T.T_DEADPIG - 0.5 && t < T.T_ADMIRAL) { const pg = pigAt(t); if (pg.vis) s.fx(`pigd${q(pg.sc, 2)}`, 300, 220, pigC(0, "dead", -1, 0), pg.x, 0.2 + 0.45 * pulse(t - T.T_DEADPIG + 0.5, 0.5), pg.z, 3.0 * pg.sc, 2.2 * pg.sc); }
+    if (t >= T.T_DEADPIG - 0.5 && t < T.T_ADMIRAL) { const pg = pigAt(t); if (pg.vis) s.fx(`pigd${q(pg.sc, 2)}`, 300, 220, pigC(0, "dead", -1, 0), pg.x, 2.2 * pg.sc * 0.3 + 0.45 * pulse(t - T.T_DEADPIG + 0.5, 0.5), pg.z, 3.0 * pg.sc, 2.2 * pg.sc); }
     if (t >= T.T_DEADPIG && t < T.T_ADMIRAL) for (let k = 0; k < 3; k++) { const a = t * 3 + k * 2.1; s.fx("fly", 40, 40, spark, 0.3 * Math.cos(a), 1.4 + 0.2 * Math.sin(a * 1.7), -1.5 + 0.3 * Math.sin(a), 0.14, 0.14); }
     if (t >= T.T_FACED) { const e = pop(t - T.T_FACED, 0.35); s.fx("v5", 600, 240, plate("5 WARSHIPS", "", "#c92a2e", "#ffffff"), -3, 8.5, -26, 11 * e, 4.4 * e, { rot: 0.02 }); }
   }
@@ -281,12 +282,12 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     const refuse = t >= T.T_REFUSE, said = t >= T.T_SAID;
     let bn: Bn = idle(t, 7, 1.5), arms: FrontOpts["arms"] = { l: [-0.5, 0.4], r: [0.5, 0.4] }, expr: Expr = "stern";
     if (refuse) { const u = t - T.T_REFUSE; bn = { dy: 0.1 * pulse(u, 0.25), sx: 1 + 0.1 * pulse(u, 0.2) - 0.05 * spr(u - 0.25), sy: 1 - 0.12 * pulse(u, 0.2) + 0.05 * spr(u - 0.25), lean: 0.1 * Math.sin(u * 14) * Math.exp(-2.5 * u) }; arms = { l: [-0.4, 0.5], r: [0.4, 0.5] }; expr = "stern"; }
-    if (said) { const w = Math.sin(t * 6); bn = add(hop(t, 7, 1.3, 0.1, 0.1), { dy: 0, sx: 1, sy: 1, lean: 0.03 * w }); arms = { l: [-0.5, ar(0.3 + 0.2 * w)], r: [0.55, ar(-0.6 - 0.25 * w)] }; expr = t > 36.0 ? "smile" : "neutral"; }
+    if (said) { const w = Math.sin(t * 6); bn = idle(t, 7, 1.5); bn = { ...bn, lean: bn.lean + 0.02 * w }; arms = { l: [-0.5, ar(0.3 + 0.2 * w)], r: [0.55, ar(-0.6 - 0.25 * w)] }; expr = t > 36.0 ? "smile" : "neutral"; }
     who(70, ADMIRAL, "adm", BRC, 0.2, expr, { arms, headTilt: refuse ? ar(0.25 * Math.sin(t * 15) * Math.exp(-1.8 * (t - T.T_REFUSE)) * (said ? 0 : 1)) : 0 }, 1.45, bn);
-    for (let k = 0; k < 2; k++) who(71 + k, BRIT(k, { hat: "bicorne", sword: true, rifle: false, sash: "#f0ece0" }), `off${k}`, BRC + (k ? 3.2 : -3.0), 1.0, refuse ? "shock" : "stern", { arms: { l: [-0.4, 0.3], r: [0.4, 0.3] } }, 1.2, refuse ? hop(t, 71 + k, 2.4, 0.16) : idle(t, 71 + k, 1.5));
+    for (let k = 0; k < 2; k++) who(71 + k, BRIT(k, { hat: "bicorne", sword: true, rifle: false, sash: "#f0ece0" }), `off${k}`, BRC + (k ? 3.2 : -3.0), 1.0, refuse ? "shock" : "stern", { arms: { l: [-0.4, 0.3], r: [0.4, 0.3] } }, 1.2, refuse ? { dy: 0.12 * pulse(t - T.T_REFUSE - 0.05 * k, 0.35), sx: 1 - 0.06 * pulse(t - T.T_REFUSE - 0.05 * k, 0.3), sy: 1 + 0.08 * pulse(t - T.T_REFUSE - 0.05 * k, 0.3), lean: 0 } : idle(t, 71 + k, 1.5));
     if (refuse && t < T.T_SAID) s.fx("nope", 200, 200, nope, BRC + 1.8, 3.6, 0.3, 1.5 * pop(t - T.T_REFUSE, 0.5), 1.5 * pop(t - T.T_REFUSE, 0.5), { rot: 0.1 });
     if (said) { const e = pop(t - T.T_SAID, 0.3); s.fx("thk", 200, 200, think, BRC - 1.6, 4.3, 0.4, 3.0 * e, 3.0 * e); if (t >= 36.8) s.fx("nope", 200, 200, nope, BRC - 1.6, 4.4, 0.45, 1.5 * pop(t - 36.8, 0.5), 1.5 * pop(t - 36.8, 0.5), { rot: 0.1 }); }
-    for (let n = 0; n < 10; n++) { const c = n % 5, r = Math.floor(n / 5); who(160 + n, BRIT(n + 3), `bk${n % 4}s`, BRC - 5 + c * 2.4, -3 - r * 1.4, refuse ? "shock" : "stern", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1, refuse ? hop(t, n, 1.6, 0.1) : idle(t, n, 2)); }
+    for (let n = 0; n < 10; n++) { const c = n % 5, r = Math.floor(n / 5); who(160 + n, BRIT(n + 3), `bk${n % 4}s`, BRC - 5 + c * 2.4, -3 - r * 1.4, refuse ? "shock" : "stern", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1, refuse ? { dy: 0.08 * pulse(t - T.T_REFUSE - 0.03 * n, 0.35), sx: 1, sy: 1 + 0.05 * pulse(t - T.T_REFUSE - 0.03 * n, 0.3), lean: 0 } : idle(t, n, 2)); }
   }
 
   // ================= 37.8 - 42.4: twelve years of shared dinner parties =================
@@ -296,7 +297,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     s.fx("cake", 200, 140, cake, DIN, 1.6, 1.6, 1.1, 0.8);
     for (let k = 0; k < 3; k++) s.fx("mug", 100, 110, mug, DIN - 3 + 3 * k, 1.35, 1.6, 0.36, 0.4);
     for (let n = 0; n < 8; n++) { const x = DIN - 3.8 + n * 1.1, us = n % 2 === 0, toast = Math.sin(t * 5 + n * 1.3); who(170 + n, us ? USA(n, { rifle: false }) : BRIT(n, { rifle: false }), `ds${us ? "u" : "b"}${n % 4}`, x, 0.2, "laugh", { mode: "sit", arms: { l: [-0.5, ar(-0.5 + 0.3 * toast)], r: [0.5, ar(-0.5 - 0.3 * toast)] } }, 1, add(idle(t, n, 2), { dy: 0, sx: 1, sy: 1 + 0.03 * Math.abs(toast), lean: 0.04 * toast }), 0.35); }
-    for (let k = 0; k < 2; k++) { const dx = DIN - 2.2 + 4.4 * k, a = Math.sin(t * 6 + k * 3); who(180 + k * 2, USA(k, { rifle: false }), "dnU", dx - 0.7, 4.4, "grin", { arms: { l: [-0.55, ar(-0.3 + 0.4 * a)], r: [0.5, ar(-0.2 - 0.3 * a)] } }, 1.1, hop(t, 180 + k, 2.6, 0.32, 0.12)); who(181 + k * 2, BRIT(k, { rifle: false }), "dnB", dx + 0.7, 4.4, "laugh", { arms: { l: [-0.5, ar(-0.2 + 0.3 * a)], r: [0.55, ar(-0.3 - 0.4 * a)] } }, 1.1, hop(t, 181 + k, 2.6, 0.32, 0.12)); }
+    for (let k = 0; k < 2; k++) { const dx = DIN - 2.2 + 4.4 * k, a = Math.sin(t * 6 + k * 3); who(180 + k * 2, USA(k, { rifle: false }), "dnU", dx - 0.7, 4.4, "grin", { arms: { l: [-0.55, ar(-0.3 + 0.4 * a)], r: [0.5, ar(-0.2 - 0.3 * a)] } }, 1.1, hop(t, 180 + k, 1.8, 0.2, 0.08)); who(181 + k * 2, BRIT(k, { rifle: false }), "dnB", dx + 0.7, 4.4, "laugh", { arms: { l: [-0.5, ar(-0.2 + 0.3 * a)], r: [0.55, ar(-0.3 - 0.4 * a)] } }, 1.1, hop(t, 181 + k, 1.8, 0.2, 0.08)); }
     confetti(14, DIN, 2, 10);
     if (t >= T.T_PARTY) for (let k = 0; k < 4; k++) s.fx("hrt", 100, 100, heart, DIN - 3 + 2 * k, 3.2 + 0.4 * Math.sin(t * 3 + k), 2.0, 0.5, 0.5, { rot: 0.2 * Math.sin(t * 2 + k) });
   }
@@ -305,10 +306,10 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   if (t >= 42.4 && t < 47.6) {
     const gave = t >= T.T_GAVE, em = t >= T.T_EMP, stampU = t - T.T_GAVE;
     let bn: Bn = idle(t, 80, 1.5), arms: FrontOpts["arms"] = { l: [-0.5, 0.4], r: [0.5, 0.4] };
-    if (em) { bn = hop(t, 80, 1.2, 0.12, 0.08); arms = { l: [-0.5, 0.45], r: [0.5, 0.45] }; }
+    if (em) { bn = idle(t, 80, 2); arms = { l: [-0.5, 0.45], r: [0.5, 0.45] }; }
     if (gave) { bn = { dy: 0.2 * pulse(stampU, 0.35), sx: 1 + 0.12 * pulse(stampU - 0.12, 0.25) - 0.06 * spr(stampU - 0.35), sy: 1 - 0.14 * pulse(stampU - 0.12, 0.25) + 0.06 * spr(stampU - 0.35), lean: 0.02 * Math.sin(t * 8) }; arms = { l: [-0.5, -0.9], r: [0.55, -0.9] }; }
     who(80, KAISER, "kai", KZ, 0.4, gave ? "laugh" : "stern", { arms, headTilt: ar(0.05 * Math.sin(t * 2)) }, 1.55, bn);
-    for (const sx of [-1, 1]) who(81 + (sx > 0 ? 1 : 0), BRIT(sx + 4, { hat: "cap", cap: "#3a3e4a", jacket: "#3a3e4a", rifle: false, sword: true }), `ai${sx}`, KZ + sx * 3.4, 1.0, gave ? "grin" : "neutral", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1.15, gave ? hop(t, 81 + sx, 2.4, 0.2) : add(idle(t, 81 + sx, 2), { dy: 0, sx: 1, sy: 1, lean: 0.06 * Math.sin(t * 2 + sx) }));
+    for (const sx of [-1, 1]) who(81 + (sx > 0 ? 1 : 0), BRIT(sx + 4, { hat: "cap", cap: "#3a3e4a", jacket: "#3a3e4a", rifle: false, sword: true }), `ai${sx}`, KZ + sx * 3.4, 1.0, gave ? "grin" : "neutral", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1.15, gave ? { dy: 0.22 * pulse(t - T.T_GAVE - 0.05, 0.45), sx: 1 - 0.07 * pulse(t - T.T_GAVE - 0.05, 0.3), sy: 1 + 0.09 * pulse(t - T.T_GAVE - 0.05, 0.3), lean: 0 } : add(idle(t, 81 + sx, 2), { dy: 0, sx: 1, sy: 1, lean: 0.06 * Math.sin(t * 2 + sx) }));
     s.fx(`map${gave ? 1 : 0}`, 400, 300, mapC(gave), KZ + 0.2, 2.6, -1.6, 2.6 * pop(t - 42.6, 0.3), 1.95 * pop(t - 42.6, 0.3));
     if (em && !gave) s.fx("stp", 240, 280, stampC, KZ + 1.8, 3.9 + 0.3 * Math.sin(t * 4), -1.2, 0.8, 0.95);
     if (gave && stampU < 0.5) s.fx("stp", 240, 280, stampC, KZ + 1.8, lerp(3.6, 2.0, smooth(1 - Math.abs(stampU / 0.5 - 0.3) / 0.7)), -1.2, 0.8, 0.95);
@@ -324,7 +325,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     const cta = t >= T.T_CTA;
     for (let k = 0; k < 8; k++) {
       const a = Math.PI * (0.12 + 0.76 * k / 7), x = TOMB[0] + 4.1 * Math.cos(a) * (k % 2 ? 1 : 1.15), z = TOMB[2] + 3.4 * Math.sin(a) + 1.0, us = k % 2 === 0, o = us ? USA(k, { rifle: false }) : BRIT(k, { rifle: false });
-      if (cta) { cheer(190 + k, o, `mo${us ? "u" : "b"}${k % 4}`, x, z, 2.1, 0.34, 1.1); continue; }
+      if (cta) { cheer(190 + k, o, `mo${us ? "u" : "b"}${k % 4}`, x, z, 1.5, 0.14, 1.1); continue; }
       const sob = Math.sin(t * 13 + k);
       who(190 + k, o, `mo${us ? "u" : "b"}${k % 4}`, x, z, "pained", { headTilt: 0.28, arms: { l: [-0.3, 0.55], r: [0.3, 0.55] } }, 1.1, { dy: 0.02 * Math.abs(sob), sx: 1 + 0.02 * sob, sy: 1 - 0.02 * sob, lean: 0.03 * Math.sin(t * 2 + k) });
       if (k % 2 === 0) for (let m = 0; m < 2; m++) { const u = (t * 1.2 + m / 2 + hh(k, 2)) % 1; s.fx("tr", 30, 40, tear, x - 0.28 + 0.56 * m, 2.5 - 1.4 * u * u, z + 0.1, 0.18, 0.24); }
