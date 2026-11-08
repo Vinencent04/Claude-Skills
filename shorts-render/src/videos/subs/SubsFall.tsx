@@ -5,7 +5,7 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import words from "./words_fall.json";
 
 type W = { w: string; t0: number; t1: number; hi: boolean };
-export const SUBS_FL_FRAMES = 2340;
+export const SUBS_FL_FRAMES = 2420;
 const FPS = 30;
 
 /** merge tiny words ("In", "the", "of") with the next one so the captions never flicker; max 2 words per chunk */
