@@ -252,7 +252,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     if (u > 0 && u < 1 && t < T.T_BOOM) { const a = u; const px = lerp(x0, x1, a), pz = lerp(z0, z1, a); s.fx("spk", 60, 60, spark, px, 0.6 + 0.2 * Math.sin(t * 40), pz, 0.9, 0.9, { rot: t * 12 }); s.fx("spg", 200, 200, glowC("255,200,80"), px, 0.6, pz, 1.8, 1.8, { soft: true }); }
     if (t < T.T_BOOM + 0.1) { s.fx("brl", 120, 120, plate("WAR", "", "#2a1a10", "#ff6a4a"), T.BARREL_X, 2.8, 0.1, 1.9, 0.76, { rot: 0.05 }); }
     if (t >= T.T_BOOM) { burstAt(T.T_BOOM, T.BARREL_X, 1.6, 0.4, 9, 0.6, "#ffd27a"); burstAt(T.T_BOOM + 0.12, T.BARREL_X, 1.6, 0.6, 6, 0.5, "#ffffff"); for (let k = 0; k < 5; k++) puffAt(T.T_BOOM + 0.05 * k, T.BARREL_X - 1.5 + 0.8 * k, 0.5, 3.0, 1.4, 0.4); for (let k = 0; k < 4; k++) flameAt(T.BARREL_X - 1.5 + k, 0.5, 0.3, 1.2 + 0.2 * (k % 2), k); }
-    if (t >= T.T_BOOM && t < T.T_DEADLIEST) s.fx("t30", 600, 240, plate("THIRTY YEARS'", "WAR", "#c92a2e", "#ffffff"), T.BARREL_X, 4.0, 0.8, 4.8 * pop(t - T.T_BOOM, 0.4), 1.92 * pop(t - T.T_BOOM, 0.4), { rot: -0.04 });
+    if (t >= T.T_BOOM && t < T.T_DEADLIEST) s.fx("t30", 600, 240, plate("THIRTY YEARS'", "WAR", "#c92a2e", "#ffffff"), T.BARREL_X, 3.7, 0.8, 3.6 * pop(t - T.T_BOOM, 0.4), 1.44 * pop(t - T.T_BOOM, 0.4), { rot: -0.04 });
     if (t >= T.T_DEADLIEST - 0.2 && t < 16.8) { const e = pop(t - T.T_DEADLIEST, 0.3); s.fx("eur", 400, 300, europe(clamp01((t - T.T_DEADLIEST) / 1.6)), T.BARREL_X, 5.2, -0.4, 7.2 * e, 5.4 * e, { rot: 0.02 }); for (let k = 0; k < 3; k++) s.fx("sk", 120, 120, skull, T.BARREL_X - 2.4 + 2.4 * k, 8.6 + 0.2 * Math.sin(t * 4 + k), -0.2, 1.1, 1.1, { rot: 0.1 * Math.sin(t * 3 + k) }); }
   }
 
@@ -263,7 +263,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
       const grab = lead && t >= T.T_RIGHTS, hit = grab ? spr(t - T.T_RIGHTS - 0.1, 8, 20) : 0;
       who(30 + k, CITIZEN(k), `bz${k % 4}${prot ? "p" : ""}`, x, z, grab ? "shock" : prot ? "smile" : "neutral", { arms: grab ? { l: [-0.55, -0.9], r: [0.55, -0.9] } : prot ? { l: [-0.35, 0.45], r: [0.35, 0.45] } : { l: [-0.4, 0.3], r: [0.4, 0.3] }, headTilt: grab ? 0.1 : 0 }, 1.1, grab ? { dy: 0.1 * pulse(t - T.T_RIGHTS - 0.1, 0.3), sx: 1 + 0.06 * hit, sy: 1 - 0.06 * hit, lean: -0.08 * hit } : idle(t, k, 1.5));
     }
-    if (t >= T.T_BOH && t < T.T_KING + 1.6) { const e = pop(t - T.T_BOH, 0.35); s.fx("pb", 600, 240, plate("PROTESTANT BOHEMIA", "", "#2a3f8a", "#ffffff"), bx - 1, 5.6, 0.5, 6.0 * e, 1.4 * e, { rot: -0.03 }); }
+    if (t >= T.T_BOH && t < T.T_KING + 1.6) { const e = pop(t - T.T_BOH, 0.35); s.fx("pb", 600, 240, plate("PROTESTANT", "BOHEMIA", "#2a3f8a", "#ffffff"), bx - 2.6, 3.7, 0.5, 3.2 * e, 1.28 * e, { rot: -0.03 }); }
     if (t >= T.T_KING - 0.3) {
       const u = clamp01((t - (T.T_KING - 0.3)) / 1.5), kx = lerp(bx + 13, bx + 1.7, glide(u));
       if (u < 1) stride(50, KING, "king", kx, 1.2, "stern", -1, 1.5, { l: [-0.5, 0.3], r: [0.5, 0.3] }, 1.35);
@@ -273,8 +273,8 @@ export const stage = (f: number, cam: CamInfo): Stage => {
       }
       for (let k = 0; k < 2; k++) { const gx = lerp(bx + 15 + 2.0 * k, bx + 4.2 + 2.0 * k, glide(u)); if (u < 1) stride(51 + k, IMP(k), `kg${k}`, gx, 1.8 + k, "stern", -1, 1.5, { l: [-0.5, 0.3], r: [0.5, -0.3] }, 1.1); else who(51 + k, IMP(k), `kg${k}s`, gx, 1.8 + k, "stern", { arms: { l: [-0.5, 0.3], r: [0.5, 0.3] } }, 1.1, idle(t, 51 + k, 1.5)); }
     }
-    if (t >= T.T_KING && t < T.T_RIGHTS) s.fx("kp", 600, 240, plate("NEW KING: CATHOLIC", "", "#7a1a1a", "#ffe9a0"), bx + 4, 5.2, 0.5, 5.8 * pop(t - T.T_KING, 0.35), 1.4 * pop(t - T.T_KING, 0.35), { rot: 0.03 });
-    if (t >= T.T_RIGHTS) for (let k = 0; k < 5; k++) { const a0 = T.T_RIGHTS + 0.35 * k, u = clamp01((t - a0) / 0.7); if (u <= 0 || u >= 1) continue; s.fx("sc", 300, 160, scroll("RIGHTS"), lerp(bx - 1.4, bx + 3.2, glide(u)), 1.5 + 2.2 * Math.sin(Math.PI * u), 1.0, 1.4, 0.75, { rot: 0.5 * Math.sin(u * 8) }); }
+    if (t >= T.T_KING && t < T.T_RIGHTS) s.fx("kp", 600, 240, plate("NEW KING:", "CATHOLIC", "#7a1a1a", "#ffe9a0"), bx + 3.0, 4.0, 0.5, 3.2 * pop(t - T.T_KING, 0.35), 1.28 * pop(t - T.T_KING, 0.35), { rot: 0.03 });
+    if (t >= T.T_RIGHTS) for (let k = 0; k < 5; k++) { const a0 = T.T_RIGHTS + 0.35 * k, u = clamp01((t - a0) / 0.7); if (u <= 0 || u >= 1) continue; s.fx("sc", 300, 160, scroll("RIGHTS"), lerp(bx - 1.4, bx + 3.2, glide(u)), 1.4 + 1.1 * Math.sin(Math.PI * u), 1.0, 1.3, 0.7, { rot: 0.5 * Math.sin(u * 8) }); }
     if (t >= T.T_MAY - 0.2 && t < T.T_MAY + 1.8) s.fx("cal", 300, 260, calendar, bx, 4.0, 0.8, 2.6 * pop(t - T.T_MAY, 0.4), 2.25 * pop(t - T.T_MAY, 0.4), { rot: -0.04 });
   }
 
@@ -282,7 +282,7 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   if (t >= 26.2 && t < 36.9) {
     const u = clamp01((t - 26.6) / 2.5);
     for (let k = 0; k < 12; k++) {
-      const tx = -5.5 + 1.0 * k + 0.3 * hh(k, 2), tz = -3.4 + 1.0 * (k % 4) + 0.3 * hh(k, 4), sx = T.BOH - 4 + 1.2 * (k % 6) + 3 * hh(k, 6), sz = 1.0 + 1.6 * (k % 3);
+      const tx = -5.5 + 1.0 * k + 0.3 * hh(k, 2), tz = -3.4 + 1.0 * (k % 4) + 0.3 * hh(k, 4), sx = T.BOH - 2.6 + 0.7 * (k % 6) + 1.5 * hh(k, 6), sz = -0.6 + 1.4 * (k % 3);
       const x = lerp(sx, tx, glide(clamp01((t - 26.6 - 0.04 * k) / 2.5))), z = lerp(sz, tz, glide(clamp01((t - 26.6 - 0.04 * k) / 2.5))), arrived = t >= 26.6 + 0.04 * k + 2.5;
       if (t < 26.6 + 0.04 * k + 2.5) stride(100 + k, NOBLE(k), `mc${k % 4}`, x, z, "stern", -1, 2.4, { l: [-0.55, -0.9], r: [0.55, -0.9] }, 1.1);
       else if (t < 36.0) shout(100 + k, NOBLE(k), `cn${k % 4}`, x, z, t > T.T_SHOUT ? 1.5 : 1.0, 1.15);
@@ -298,9 +298,9 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   if (t >= T.T_HURL + 1.2 && t < 44.8) {
     for (let k = 0; k < 4; k++) { const u = (t * 0.45 + k / 4) % 1; s.fx("stm", 200, 200, steam, PX - 1.5 + 1.0 * k, 1.5 + 2.0 * u, PZ + 0.5, 1.3, 1.3, { soft: true }); }
     for (let k = 0; k < 5; k++) { const a = t * 3 + k * 1.9; s.fx("fly", 40, 40, fly, PX + 2.8 * Math.cos(a * 0.7 + k), 2.4 + 0.6 * Math.sin(a * 1.3), PZ + 0.8 + 1.4 * Math.sin(a * 0.9 + k), 0.3, 0.3); }
-    if (t >= T.T_CATH) for (let k = 0; k < 3; k++) { const e = pop(t - T.T_ANGELS - 0.1 * k, 0.4), hv = 0.25 * Math.sin(t * 4 + k * 2); s.fx("ang", 180, 200, angelC, PX - 2.4 + 2.4 * k, 4.8 + hv, PZ + 1.0, 1.6 * e, 1.8 * e, { rot: 0.1 * Math.sin(t * 3 + k) }); }
-    if (t >= T.T_ANGELS) s.fx("angp", 600, 240, plate("ANGELS!", "", "#f4efe0", "#c8352a"), PX - 3.0, 6.0, PZ + 1.4, 3.4 * pop(t - T.T_ANGELS, 0.4), 1.36 * pop(t - T.T_ANGELS, 0.4), { rot: -0.05 });
-    if (t >= T.T_DUNG - 0.5) s.fx("dnp", 600, 240, plate("HORSE DUNG!", "", "#6a4a2a", "#ffffff"), PX + 3.0, 6.0, PZ + 1.4, 4.4 * pop(t - (T.T_DUNG - 0.5), 0.4), 1.76 * pop(t - (T.T_DUNG - 0.5), 0.4), { rot: 0.05 });
+    if (t >= T.T_CATH) for (let k = 0; k < 3; k++) { const e = pop(t - T.T_ANGELS - 0.1 * k, 0.4), hv = 0.25 * Math.sin(t * 4 + k * 2); s.fx("ang", 180, 200, angelC, PX - 2.4 + 2.4 * k, 4.4 + hv, PZ + 1.0, 1.6 * e, 1.8 * e, { rot: 0.1 * Math.sin(t * 3 + k) }); }
+    if (t >= T.T_ANGELS) s.fx("angp", 600, 240, plate("ANGELS!", "", "#f4efe0", "#c8352a"), PX - 1.4, 4.7, PZ + 1.4, 2.6 * pop(t - T.T_ANGELS, 0.4), 1.04 * pop(t - T.T_ANGELS, 0.4), { rot: -0.05 });
+    if (t >= T.T_DUNG - 0.5) s.fx("dnp", 600, 240, plate("HORSE DUNG!", "", "#6a4a2a", "#ffffff"), PX + 0.6, 4.4, PZ + 1.4, 3.4 * pop(t - (T.T_DUNG - 0.5), 0.4), 1.36 * pop(t - (T.T_DUNG - 0.5), 0.4), { rot: 0.05 });
     // the two camps react: Catholics (red hats) cheer left, Protestants (blue) laugh and point right
     for (let k = 0; k < 3; k++) { if (t >= T.T_CATH) cheer(120 + k, OFFICIAL(k + 2), `cath${k}`, -6 + 1.2 * k, 3 + 0.3 * k, 1.4, 0.12, 1.15); }
     for (let k = 0; k < 3; k++) { if (t >= T.T_PROTS) { const w = Math.sin(t * 9 + k); who(125 + k, CITIZEN(k), `prt${k}`, 4.2 + 1.2 * k, 3 + 0.3 * k, "laugh", { arms: { l: [-0.5, 0.3], r: [0.55, ar(-0.3 + 0.2 * w)] } }, 1.15, { dy: 0, sx: 1, sy: 1 + 0.02 * Math.abs(w), lean: 0.05 * w }); } }
