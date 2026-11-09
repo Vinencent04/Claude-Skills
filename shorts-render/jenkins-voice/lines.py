@@ -1,0 +1,15 @@
+LINES=[
+("[shouting excitedly]","In 1731, a Spanish officer sliced off a British captain's ear! And that one ear started a war!"),
+("[excited]","The captain was Robert Jenkins, and his little ship was stopped off the coast of Cuba. The Spaniards searched every corner, and found nothing."),
+("[furious] [shouting]","So the angry Spanish officer drew his sword, and cut off Jenkins' ear! Then he sneered: Go tell your king, he's next!"),
+("[dramatic]","Jenkins did not throw the ear away. He pickled it in a jar, and carried it home to London."),
+("[building tension] [excited]","Seven years later, in 1738, he walked into Parliament, and held the ear up high. The lords gasped! And the whole country screamed for revenge!"),
+("[sighs] [serious]","The prime minister, Robert Walpole, did not want a war. But the crowds were so loud, that in 1739, Britain declared war on Spain!"),
+("[laughing] [excited]","And they named it after the ear: the War of Jenkins' Ear!"),
+("[excited] [dramatic]","Admiral Vernon sailed to the Caribbean, and in 1741, he attacked the city of Cartagena, with almost two hundred ships!"),
+("[shouting excitedly]","But Spain had Blas de Lezo. A tough old admiral, with one eye, one arm, and one leg!"),
+("[mischievously] [excited]","And with just a few ships, and a few thousand men, he crushed the biggest fleet Britain had ever sent!"),
+("[somber]","Thousands of British sailors died, most of them from disease."),
+("[dramatic] [excited]","The war dragged on, and merged into an even bigger war, that lasted until 1748. All because of one little ear!"),
+("[cheerful] [excited]","So if you like history, where a single ear shakes up the world, follow for more stories like this!"),
+]
