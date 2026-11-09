@@ -5,7 +5,7 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import words from "./words_jenkins.json";
 
 type W = { w: string; t0: number; t1: number; hi: boolean };
-export const SUBS_JK_FRAMES = 2640;
+export const SUBS_JK_FRAMES = 2820;
 const FPS = 30;
 
 /** merge tiny words ("In", "the", "of") with the next one so the captions never flicker; max 2 words per chunk */

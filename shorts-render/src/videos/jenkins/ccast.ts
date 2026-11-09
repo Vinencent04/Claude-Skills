@@ -203,88 +203,105 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   const burstAt = (t0: number, x: number, y: number, z: number, w: number, dur = 0.4, col = "#fff3b0") => s.burst(t0, x, y, z, w, dur, col);
   const who = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, fo: Partial<FrontOpts> = {}, sc = 1, bn: Bn = NB, y = 0, shadow = true) => s.who(i, o, ok, x, y, z, { mode: "stand", expr, ...fo }, sc, shadow, bn);
   const stride = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, dirx: number, speed = 1.5, arms: FrontOpts["arms"] = { l: [-0.45, 0.2], r: [0.45, 0.2] }, sc = 1, y = 0) => s.who(i, o, ok, x, y, z, { mode: "stroll", phase: q(((t * speed * 0.7 + hh(i, 4)) % 1 + 1) % 1, 20), expr, arms }, sc, true, walk(t, i, speed, dirx));
-  /** shouting crowd member: slow, smooth fist pumps */
   const shout = (i: number, o: Outfit, ok: string, x: number, z: number, amt = 1, sc = 1, y = 0, held: FrontOpts["held"] = null) => { const w = Math.sin(t * 6.5 + i * 1.7), w2 = Math.sin(t * 6.5 + i * 1.7 - 0.9); who(i, o, ok, x, z, "stern", { arms: { l: [-0.55, ar(-0.95 + 0.2 * w * amt)], r: [0.55, ar(-0.95 + 0.2 * w2 * amt)] }, headTilt: ar(0.07 * w * amt), ...(held ? { held } : {}) }, sc, { dy: 0.03 * amt * Math.abs(w), sx: 1, sy: 1 + 0.015 * amt * w, lean: 0.025 * w * amt }, y); };
   const cheer = (i: number, o: Outfit, ok: string, x: number, z: number, rate = 1.3, h = 0.12, sc = 1, y = 0) => { const w = Math.sin(t * 6 + i); who(i, o, ok, x, z, i % 2 ? "laugh" : "grin", { arms: { l: [-0.55, ar(-0.9 + 0.15 * w)], r: [0.55, ar(-0.9 - 0.15 * w)] } }, sc, hop(t, i, rate, h), y); };
-  /** gentle talking/gesturing */
-  const talk = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, amt = 1, sc = 1, y = 0, extra: Partial<FrontOpts> = {}) => { const w = Math.sin(t * 3.2 + i * 2.1); who(i, o, ok, x, z, expr, { arms: { l: [-0.5, ar(0.3 - 0.05 * w * amt)], r: [0.5, ar(-0.2 + 0.4 * w * amt)] }, headTilt: ar(0.05 * w * amt), ...extra }, sc, add(idle(t, i, 1.5), { dy: 0, sx: 1, sy: 1, lean: 0.015 * w * amt }), y); };
   const idleW = (i: number, o: Outfit, ok: string, x: number, z: number, expr: Expr, sc = 1, y = 0, arms: FrontOpts["arms"] = { l: [-0.4, 0.3], r: [0.4, 0.3] }) => who(i, o, ok, x, z, expr, { arms }, sc, idle(t, i, 1.5), y);
   const flame = (x: number, y: number, z: number, w: number, k = 0) => { const sc = 1 + 0.12 * Math.sin(t * 9 + k * 2.1); s.fx("fl", 200, 220, flameC, x, y + 0.4 * w, z, w * sc, w * 1.1 * sc, { rot: 0.06 * Math.sin(t * 6 + k) }); };
   const confetti = (n: number, x0: number, z0: number, w: number, ymax = 7) => { const cols = ["#ff5a7a", "#ffd84a", "#6ab4ff", "#7be07b"]; for (let k = 0; k < n; k++) { const u = (t * 0.4 + hh(k, 2)) % 1; s.fx(`cf${k % 4}`, 40, 40, confettiC(cols[k % 4]), x0 + w * (hh(k, 3) - 0.5) + 0.4 * Math.sin(t * 2 + k), ymax * (1 - u), z0 + 3 * (hh(k, 4) - 0.5), 0.22, 0.22, { rot: t * 3 + k }); } };
-  const plateAt = (key: string, l1: string, l2: string, bg: string, fg: string, t0: number, t1: number, x: number, y: number, z: number, w: number, rot = 0) => { if (t >= t0 && t < t1) { const e = pop(t - t0, 0.4), h = w * (l2 ? 0.4 : 0.4); s.fx(key, 600, 240, plate(l1, l2, bg, fg), x, y + 0.06 * Math.sin(t * 2.4), z, w * e, h * e, { rot }); } };
+  const plateAt = (key: string, l1: string, l2: string, bg: string, fg: string, t0: number, t1: number, x: number, y: number, z: number, w: number, rot = 0) => { if (t >= t0 && t < t1) { const e = pop(t - t0, 0.4), h = w * 0.4; s.fx(key, 600, 240, plate(l1, l2, bg, fg), x, y + 0.06 * Math.sin(t * 2.4), z, w * e, h * e, { rot }); } };
+  const qm = (x: number, y: number, z: number, t0: number, k = 0, w = 0.9) => { if (t >= t0) s.fx("qm", 120, 120, qmark, x, y + 0.12 * Math.sin(t * 4 + k), z, w * pop(t - t0 - 0.1 * k), w * pop(t - t0 - 0.1 * k), { rot: 0.1 * Math.sin(t * 3 + k) }); };
 
-  // ====================================================== THE SHIP SET (x = 0) ======================================================
-  const shipT = t < 26.9 || t >= 78.0;
+  // ====================================================== THE SHIP SET (x = 0): 0-26.9 and 83-end ======================================================
+  const shipT = t < 26.9 || t >= 82.8;
   if (shipT) {
     const D = DY, jx = -1.0;
-    const cutT = t < 14.6 ? T.T_SLICE : T.T_CUT, since = t - cutT;
+    const late = t >= 82.8, cutT = t < 14.4 ? T.T_SLICE : T.T_CUT;
     // ---- Jenkins ----
     let jex: Expr = "neutral", jarms: FrontOpts["arms"] = { l: [-0.45, 0.3], r: [0.45, 0.3] }, jbn: Bn = idle(t, 1, 1.5), jtilt = 0;
-    const cutNow = (t >= T.T_SLICE && t < 14.0) || (t >= T.T_CUT && t < 26.9);
-    if (t < T.T_SLICE) { jex = "nervous"; jarms = { l: [-0.4, 0.35], r: [0.4, 0.35] }; }
-    else if (t < 7.0) { const a = t - T.T_SLICE, k = spr(a, 6, 12); jex = a < 1.2 ? "shock" : "pained"; jarms = { l: [-0.3, ar(-0.9)], r: [0.55, ar(-0.7 + 0.25 * Math.sin(t * 6))] }; jbn = { dy: 0.05 * pulse(a, 0.6), sx: 1 + 0.06 * (1 - Math.min(1, k)) , sy: 1 - 0.06 * (1 - Math.min(1, k)), lean: -0.16 * Math.min(1, k) + 0.03 * Math.sin(t * 6) }; jtilt = 0.2; }
-    else if (t < T.T_ANGRY) { jex = "nervous"; jarms = { l: [-0.45, 0.35], r: [0.45, 0.3] }; }
-    else if (t < T.T_CUT) { jex = "shock"; jarms = { l: [-0.55, -0.45], r: [0.5, -0.4] }; jbn = { dy: 0, sx: 1.02, sy: 0.97, lean: 0.03 * Math.sin(t * 7) }; }
-    else if (t < T.T_JAR - 0.2) { const a = t - T.T_CUT, k = Math.min(1, spr(a, 6, 12)); jex = a < 1.2 ? "shock" : "pained"; jarms = { l: [-0.3, -0.9], r: [0.55, ar(-0.6 + 0.2 * Math.sin(t * 5))] }; jbn = { dy: 0.05 * pulse(a, 0.6), sx: 1, sy: 1, lean: -0.15 * k + 0.02 * Math.sin(t * 6) }; jtilt = 0.2; }
-    else if (t < 26.9) { jex = "pained"; jarms = { l: [-0.3, -0.9], r: [0.4, ar(-0.2 + 0.1 * Math.sin(t * 3))] }; jbn = { ...idle(t, 1, 1.5), lean: -0.05 }; }
-    else { const a = t - 78.5; jex = a > 0 ? "grin" : "pained"; jarms = a > 0 ? { l: [-0.5, 0.3], r: [0.5, ar(-0.9 + 0.1 * Math.sin(t * 4))] } : { l: [-0.3, -0.9], r: [0.4, 0.3] }; jbn = idle(t, 1, 1.5); }
+    const hurt = (t0: number) => { const a = t - t0, k = Math.min(1, spr(a, 6, 12)); jex = a < 1.2 ? "shock" : "pained"; jarms = { l: [-0.3, -0.9], r: [0.55, ar(-0.7 + 0.2 * Math.sin(t * 5))] }; jbn = { dy: 0.05 * pulse(a, 0.6), sx: 1 + 0.06 * (1 - k), sy: 1 - 0.06 * (1 - k), lean: -0.15 * k + 0.02 * Math.sin(t * 6) }; jtilt = 0.2; };
+    if (!late) {
+      if (t < T.T_SLICE) { jex = "nervous"; jarms = { l: [-0.4, 0.35], r: [0.4, 0.35] }; }
+      else if (t < 7.2) hurt(T.T_SLICE);
+      else if (t < T.T_TIED) { jex = "neutral"; }
+      else if (t < T.T_CUT) { jex = "shock"; jarms = { l: [-0.15, 0.55], r: [0.15, 0.55] }; jbn = { dy: 0, sx: 1.02, sy: 0.98, lean: 0.03 * Math.sin(t * 9) }; }
+      else if (t < T.T_KEEP) hurt(T.T_CUT);
+      else { jex = "pained"; jarms = { l: [-0.3, -0.9], r: [0.4, ar(-0.2 + 0.1 * Math.sin(t * 3))] }; jbn = { ...idle(t, 1, 1.5), lean: -0.05 }; }
+    } else { const a = t - T.T_EXC; jex = a > 0 ? "smile" : "neutral"; jarms = { l: [-0.45, 0.3], r: [0.5, ar(-0.6 + 0.1 * Math.sin(t * 4))] }; jbn = idle(t, 1, 1.5); }
     if (t >= T.T_CTA - 0.2) { who(1, JEN, "jen", 0, 0.4, "laugh", { arms: { l: [-0.55, ar(-0.9 + 0.15 * Math.sin(t * 5))], r: [0.55, ar(-0.9 - 0.15 * Math.sin(t * 5))] } }, 1.25, hop(t, 1, t >= T.T_FOLLOW ? 1.6 : 0.9, 0.12), D); }
-    else who(1, JEN, "jen", jx + (t >= 78.0 && t < T.T_CTA ? 0.1 : 0), 0.3, jex, { arms: jarms, headTilt: jtilt }, 1.2, jbn, D);
-    if (cutNow && t < T.T_JAR - 0.2 && t < 26.9) s.fx("bandage", 60, 60, (p) => { p.poly([[4, 30], [30, 4], [56, 30], [30, 56]], "#f2f0e8", 4); p.stroke([[14, 30], [46, 30]], 4, "#c8352a"); }, jx - 0.5, D + 2.25, 0.9, 0.38, 0.38, { rot: 0.2 });
+    else who(1, JEN, "jen", jx, 0.3, jex, { arms: jarms, headTilt: jtilt }, 1.2, jbn, D);
+    if (!late && ((t >= T.T_SLICE && t < 14.4) || (t >= T.T_CUT)) && t < T.T_JAR - 0.2) s.fx("bandage", 60, 60, (p) => { p.poly([[4, 30], [30, 4], [56, 30], [30, 56]], "#f2f0e8", 4); p.stroke([[14, 30], [46, 30]], 4, "#c8352a"); }, jx - 0.5, D + 2.25, 0.9, 0.38, 0.38, { rot: 0.2 });
+    // tied up (15.3 - 17)
+    if (!late && t >= T.T_TIED && t < T.T_CUT + 0.1) for (let k = 0; k < 2; k++) s.fx("rope", 60, 60, rope, jx, D + 1.1 + 0.55 * k, 0.9, 1.5, 1.5, { rot: 0.05 * Math.sin(t * 8 + k) });
 
     // ---- the Spanish officer ----
     let oex: Expr = "stern", oarms: FrontOpts["arms"] = { l: [-0.5, 0.35], r: [0.5, 0.35] }, obn: Bn = idle(t, 2, 1.5), ox = 1.1;
-    const slice = (t0: number) => { const a = t - t0; if (a < -0.45 || a > 0.8) return; const pre = clamp01((a + 0.45) / 0.45), hit = a >= 0 && a < 0.35 ? Math.sin(Math.PI * a / 0.35) : 0, rec = a > 0 ? Math.min(1, a / 0.8) : 0; ox = 1.1 - 0.45 * hit; oarms = { l: [-0.5, 0.4], r: [ar(0.7 - 1.0 * hit - 0.4 * pre * (1 - hit)), ar(-0.5 - 0.8 * pre * (1 - rec) + 0.35 * hit)] }; obn = { dy: 0, sx: 1 + 0.07 * hit - 0.05 * pre, sy: 1 - 0.05 * hit + 0.04 * pre, lean: 0.2 * hit - 0.1 * pre * (1 - hit) }; oex = a > 0 ? "laugh" : "stern"; };
-    if (t < 7.0) { slice(T.T_SLICE); if (t > T.T_SLICE + 0.9) { oex = "laugh"; const w = Math.sin(t * 9); obn = { dy: 0.04 * Math.abs(w), sx: 1, sy: 1 + 0.02 * w, lean: 0.03 * w }; oarms = { l: [-0.5, ar(-0.3 + 0.2 * w)], r: [0.5, ar(-0.9 + 0.1 * w)] }; } }
-    else if (t < 14.6) { if (t >= 11.6) { oex = "stern"; const w = Math.sin(t * 4); oarms = { l: [-0.5, ar(0.3 + 0.15 * w)], r: [0.5, 0.35] }; ox = 1.9; obn = { dy: 0, sx: 1, sy: 1 + 0.01 * w, lean: 0.04 * w }; if (t >= T.T_NOTHING) { oex = "shock"; obn = { dy: 0, sx: 1.03, sy: 0.98, lean: 0.03 * w }; } } }
-    else if (t < 22.7) {
-      oex = t < T.T_DRAW ? "stern" : "grin";
-      if (t < T.T_DRAW) { const w = Math.sin(t * 11); oarms = { l: [-0.55, ar(-0.7 + 0.2 * w)], r: [0.55, ar(-0.7 - 0.2 * w)] }; obn = { dy: 0.04 * Math.abs(w), sx: 1, sy: 1, lean: 0.04 * w }; }
-      else if (t < T.T_CUT - 0.5) { const a = clamp01((t - T.T_DRAW) / 0.4); oarms = { l: [-0.5, 0.4], r: [0.55, ar(-0.2 - 0.8 * a)] }; }
-      else slice(T.T_CUT);
-      if (t >= 18.8) { const w = Math.sin(t * 3); oex = "grin"; oarms = { l: [-0.5, 0.4], r: [0.5, ar(-0.2 + 0.3 * w)] }; obn = idle(t, 2, 1.5); ox = 1.0; }
-    }
-    else if (t < 26.9) { oex = "grin"; ox = 2.4; }
-    else ox = 1.1;
-    if (t < 26.9 && t >= 7.0 && t < 9.9) { /* officer arrives with the boarding party */ }
-    if (t < 9.9 && t >= 7.0) ox = 99;
-    if (t >= 9.9 && t < 11.6) { const u = clamp01((t - 9.9) / 1.5); ox = lerp(10, 1.9, glide(u)); if (u < 1) { stride(2, SOFF, "soff", ox, 0.4, "stern", -1, 1.5, { l: [-0.45, 0.2], r: [0.45, 0.2] }, 1.25, D); ox = 99; } }
+    const slice = (t0: number) => { const a = t - t0, pre = clamp01((a + 0.45) / 0.45), hit = a >= 0 && a < 0.35 ? Math.sin(Math.PI * a / 0.35) : 0, rec = a > 0 ? Math.min(1, a / 0.8) : 0; if (a < -0.45 || a > 0.8) return; ox = 1.1 - 0.45 * hit; oarms = { l: [-0.5, 0.4], r: [ar(0.7 - 1.0 * hit - 0.4 * pre * (1 - hit)), ar(-0.5 - 0.8 * pre * (1 - rec) + 0.35 * hit)] }; obn = { dy: 0, sx: 1 + 0.07 * hit - 0.05 * pre, sy: 1 - 0.05 * hit + 0.04 * pre, lean: 0.2 * hit - 0.1 * pre * (1 - hit) }; oex = a > 0 ? "laugh" : "stern"; };
+    if (!late) {
+      if (t < 7.2) { slice(T.T_SLICE); if (t > T.T_SLICE + 0.9) { oex = "laugh"; const w = Math.sin(t * 6); obn = { dy: 0.03 * Math.abs(w), sx: 1, sy: 1 + 0.02 * w, lean: 0.03 * w }; oarms = { l: [-0.5, ar(-0.3 + 0.2 * w)], r: [0.5, ar(-0.9 + 0.1 * w)] }; } }
+      else if (t < T.T_CUBA + 0.2) ox = 99;
+      else if (t < 14.4) { const u = clamp01((t - T.T_CUBA - 0.2) / 1.5); if (u < 1) { ox = lerp(10, 1.9, glide(u)); stride(2, SOFF, "soff", ox, 0.4, "stern", -1, 1.5, { l: [-0.45, 0.2], r: [0.45, 0.2] }, 1.25, D); ox = 99; } else { ox = 1.9; if (t >= T.T_SEARCH) { const w = Math.sin(t * 3.4); oarms = { l: [-0.5, ar(0.3 + 0.15 * w)], r: [0.5, 0.35] }; obn = { dy: 0, sx: 1, sy: 1 + 0.01 * w, lean: 0.04 * w }; } } }
+      else if (t < 22.8) {
+        oex = t < T.T_DRAW ? "stern" : "grin";
+        if (t < T.T_DRAW) { const w = Math.sin(t * 7); oarms = { l: [-0.55, ar(-0.7 + 0.2 * w)], r: [0.55, ar(-0.7 - 0.2 * w)] }; obn = { dy: 0.03 * Math.abs(w), sx: 1, sy: 1, lean: 0.04 * w }; }
+        else if (t < T.T_CUT - 0.5) { const a = clamp01((t - T.T_DRAW) / 0.4); oarms = { l: [-0.5, 0.4], r: [0.55, ar(-0.2 - 0.8 * a)] }; }
+        else slice(T.T_CUT);
+        if (t >= 18.5) { const w = Math.sin(t * 3); oex = "grin"; oarms = { l: [-0.5, 0.4], r: [0.5, ar(-0.2 + 0.3 * w)] }; obn = idle(t, 2, 1.5); ox = 1.0; }
+      }
+      else ox = 2.4;
+    } else ox = 99;
     if (t >= T.T_CTA - 0.2) ox = 99;
-    if (ox < 50 && t < 78.0) who(2, SOFF, "soff", ox, 0.4, oex, { arms: oarms }, 1.25, obn, D);
-    if (t >= 78.0 && t < T.T_CTA - 0.2) { who(2, SOFF, "soff", 1.2, 0.4, "smile", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] } }, 1.25, idle(t, 2, 1.5), D); }
-    // slash + flying ear
+    if (ox < 50 && !late) who(2, SOFF, "soff", ox, 0.4, oex, { arms: oarms }, 1.25, obn, D);
     for (const t0 of [T.T_SLICE, T.T_CUT]) {
+      if (late) break;
       if (t >= t0 - 0.02 && t < t0 + 0.32) s.fx("slash", 200, 200, slashC, 0.2, D + 2.7, 1.1, 1.5, 1.5, { rot: -0.2 });
       const a = t - (t0 + 0.12), u = a / 1.7;
       if (u > 0 && u < 1.0) { const e = 1 - (1 - u) * (1 - u); s.fx("ear", 140, 180, earC, lerp(-0.7, -3.4, u), D + 2.2 + 3.4 * Math.sin(Math.PI * Math.min(1, u * 1.05)) * (1 - 0.2 * u), 1.0 + 0.4 * e, 0.72, 0.9, { rot: u * 9 }); }
       if (u >= 1.0 && t0 === T.T_SLICE && t < 7.2) s.fx("ear2", 140, 180, earC, -3.4, D + 0.35, 1.4, 0.72, 0.9, { rot: 0.7 });
-      if (t >= t0 + 0.1 && t < t0 + 1.4) { const e = pop(t - t0 - 0.1, 0.5); s.fx("ouch", 600, 240, plate("OUCH!", "", "#c92a2e", "#ffffff"), jx - 0.1, D + 4.0, 1.6, 2.2 * e, 0.88 * e, { rot: -0.06 }); }
+      if (t >= t0 + 0.1 && t < t0 + 1.4) { const e = pop(t - t0 - 0.1, 0.5); s.fx("ouch", 600, 240, plate("OUCH!", "", "#c92a2e", "#ffffff"), jx - 0.1, D + 3.2, 1.6, 2.2 * e, 0.88 * e, { rot: -0.06 }); }
     }
-    plateAt("y1731", "1731", "", "#2a1a10", "#ffd84a", 0.2, 2.5, 0.2, 4.9, 1.5, 2.4, -0.03);
-    if (t >= T.T_WARC - 0.3 && t < 7.2) { const e = pop(t - T.T_WARC + 0.3, 0.45); s.fx("wr", 600, 240, plate("A WAR!", "", "#c92a2e", "#ffffff"), 0, D + 3.8, 1.6, 3.2 * e, 1.28 * e, { rot: -0.04 }); for (let k = 0; k < 2; k++) s.fx("swd", 200, 180, swords, -3.2 + 6.4 * k, D + 4.0, 1.4, 1.3 * e, 1.2 * e, { rot: 0.1 * Math.sin(t * 5 + k) }); }
-    // Brit crew: scared watchers; Spaniards searching
-    if (t < 7.2 || (t >= 22.7 && t < 26.9) || t >= 78.0) for (let k = 0; k < 2; k++) { const w = Math.sin(t * 5 + k); if (t >= T.T_CTA - 0.2) continue; who(10 + k, BSAIL(k), `bs${k}`, -3.5 + 1.3 * k, -1.4, t < T.T_SLICE ? "nervous" : t < 22.7 || t >= 78.0 ? "shock" : "pained", { arms: { l: [-0.4, 0.4], r: [0.4, 0.4] } }, 1.1, idle(t, 10 + k, 1.5), D); void w; }
-    if (t < 2.9) for (let k = 0; k < 3; k++) idleW(20 + k, SSAIL(k), `ss${k}`, 2.8 + 1.1 * k, -1.2 - 0.4 * (k % 2), "stern", 1.1, D, { l: [-0.5, 0.3], r: [0.5, -0.3] });
-    if (t >= 2.9 && t < 7.0) for (let k = 0; k < 3; k++) { const w = Math.sin(t * 7 + k * 1.3); who(20 + k, SSAIL(k), `ss${k}`, 2.8 + 1.1 * k, -1.2 - 0.4 * (k % 2), "laugh", { arms: { l: [-0.5, ar(-0.5 + 0.2 * w)], r: [0.5, ar(-0.6 - 0.2 * w)] } }, 1.1, hop(t, 20 + k, 1.2, 0.08), D); }
-    // boarding + searching (7.2 - 14.6)
-    if (t >= 9.9 && t < 14.6) for (let k = 0; k < 3; k++) {
-      const u = clamp01((t - 9.9 - 0.12 * k) / 1.5), tx = 3.0 + 1.1 * k, x = lerp(11 + k, tx, glide(u));
-      if (u < 1) stride(20 + k, SSAIL(k), `ss${k}`, x, -0.8 - 0.4 * (k % 2), "stern", -1, 1.6, { l: [-0.45, 0.2], r: [0.45, -0.3] }, 1.1, D);
-      else if (t < T.T_SEARCH) idleW(20 + k, SSAIL(k), `ss${k}`, tx, -0.8 - 0.4 * (k % 2), "stern", 1.1, D, { l: [-0.5, 0.3], r: [0.5, -0.3] });
-      else { const a = pulse((t * 1.6 + hh(k, 2)) % 1, 0.7), w = Math.sin(t * 5 + k); who(20 + k, SSAIL(k), `ss${k}`, lerp(tx, 1.2 + 1.2 * k, 0.5), 0.0 + 0.5 * (k % 2), "stern", { arms: { l: [-0.5, ar(0.0 + 0.3 * w)], r: [0.5, ar(0.2 - 0.3 * a)] }, headTilt: ar(0.06 * w) }, 1.1, { dy: 0, sx: 1, sy: 1 - 0.07 * a, lean: 0.12 * a * (k % 2 ? 1 : -1) }, D); }
+    if (!late) {
+      // labels: this is Jenkins' own account
+      plateAt("y1731", "1731", "", "#2a1a10", "#ffd84a", 0.2, 2.3, 0.2, D + 3.2, 1.5, 2.4, -0.03);
+      plateAt("acc", "ACCORDING TO", "JENKINS...", "#6a1a1a", "#ffe9a0", 2.35, 3.75, 0.0, D + 3.2, 1.6, 2.8, -0.03);
+      if (t >= T.T_WARC - 0.2 && t < 7.4) { const e = pop(t - T.T_WARC + 0.2, 0.45); s.fx("wr", 600, 240, plate("A WAR!", "", "#c92a2e", "#ffffff"), 0, D + 3.2, 1.6, 3.2 * e, 1.28 * e, { rot: -0.04 }); for (let k = 0; k < 2; k++) s.fx("swd", 200, 180, swords, -3.2 + 6.4 * k, D + 4.0, 1.4, 1.3 * e, 1.2 * e, { rot: 0.1 * Math.sin(t * 5 + k) }); }
+      for (let k = 0; k < 2; k++) { if (t >= 22.8 || (t >= 7.2 && t < T.T_CUT + 2)) who(10 + k, BSAIL(k), `bs${k}`, -3.5 + 1.3 * k, -1.4, t < T.T_SLICE ? "nervous" : "shock", { arms: { l: [-0.4, 0.4], r: [0.4, 0.4] } }, 1.1, idle(t, 10 + k, 1.5), D); else if (t < 7.2) who(10 + k, BSAIL(k), `bs${k}`, -3.5 + 1.3 * k, -1.4, t < T.T_SLICE ? "nervous" : "shock", { arms: { l: [-0.4, 0.4], r: [0.4, 0.4] } }, 1.1, idle(t, 10 + k, 1.5), D); }
+      if (t < T.T_SLICE) for (let k = 0; k < 3; k++) idleW(20 + k, SSAIL(k), `ss${k}`, 2.8 + 1.1 * k, -1.2 - 0.4 * (k % 2), "stern", 1.1, D, { l: [-0.5, 0.3], r: [0.5, -0.3] });
+      if (t >= T.T_SLICE && t < 7.2) for (let k = 0; k < 3; k++) { const w = Math.sin(t * 5 + k * 1.3); who(20 + k, SSAIL(k), `ss${k}`, 2.8 + 1.1 * k, -1.2 - 0.4 * (k % 2), "laugh", { arms: { l: [-0.5, ar(-0.5 + 0.2 * w)], r: [0.5, ar(-0.6 - 0.2 * w)] } }, 1.1, hop(t, 20 + k, 1.2, 0.08), D); }
+      // coast guard boarding and searching (11.3 - 14.4)
+      if (t >= T.T_CUBA + 0.2 && t < 14.4) for (let k = 0; k < 3; k++) {
+        const u = clamp01((t - T.T_CUBA - 0.2 - 0.12 * k) / 1.5), tx = 3.0 + 1.1 * k, x = lerp(11 + k, tx, glide(u));
+        if (u < 1) stride(20 + k, SSAIL(k), `ss${k}`, x, -0.8 - 0.4 * (k % 2), "stern", -1, 1.6, { l: [-0.45, 0.2], r: [0.45, -0.3] }, 1.1, D);
+        else if (t < T.T_SEARCH) idleW(20 + k, SSAIL(k), `ss${k}`, tx, -0.8 - 0.4 * (k % 2), "stern", 1.1, D, { l: [-0.5, 0.3], r: [0.5, -0.3] });
+        else { const a = pulse((t * 1.4 + hh(k, 2)) % 1, 0.7), w = Math.sin(t * 4 + k); who(20 + k, SSAIL(k), `ss${k}`, lerp(tx, 1.2 + 1.2 * k, 0.5), 0.0 + 0.5 * (k % 2), "stern", { arms: { l: [-0.5, ar(0.0 + 0.3 * w)], r: [0.5, ar(0.2 - 0.3 * a)] }, headTilt: ar(0.06 * w) }, 1.1, { dy: 0, sx: 1, sy: 1 - 0.07 * a, lean: 0.12 * a * (k % 2 ? 1 : -1) }, D); }
+      }
+      if (t >= T.T_SEARCH && t < 14.4) { s.fx("chest", 200, 180, chestC, 2.0, D + 0.9, 1.6, 1.8, 1.6); if (t >= T.T_SMUG) qm(3.4, D + 3.4, 1.4, T.T_SMUG, 0, 1.0); }
+      if (t >= T.T_CUBA - 0.1 && t < 13.0) { const e = pop(t - T.T_CUBA + 0.1, 0.4); s.fx("cuba", 600, 240, plate("CUBA", "", "#2a1a10", "#ffd84a"), 5, D + 3.4, -1.0, 3.2 * e, 1.28 * e, { rot: 0.03 }); }
+      plateAt("capt", "ROBERT", "JENKINS", "#2a3f8a", "#ffffff", T.T_CAPT, 9.8, jx, D + 3.2, 1.2, 2.7, -0.03);
+      plateAt("reb", "THE", "REBECCA", "#2a3f8a", "#ffffff", 9.8, 11.2, jx + 0.3, D + 3.2, 1.2, 2.5, 0.03);
+      plateAt("smug", "SMUGGLERS?", "", "#6a1a1a", "#ffffff", T.T_SMUG, 14.4, 1.8, D + 3.2, 1.6, 3.0, 0.04);
+      // Jenkins' version labels
+      plateAt("ver", "JENKINS'", "VERSION", "#6a1a1a", "#ffe9a0", T.T_SAID, T.T_DRAW, 0.0, D + 3.2, 1.6, 2.6, -0.03);
+      plateAt("tie", "TIED UP!", "", "#2a1a10", "#ffffff", T.T_TIED + 0.0, T.T_DRAW, jx - 0.5, D + 3.2, 1.6, 2.3, 0.03);
+      if (t >= T.T_TOLD && t < 22.8) { plateAt("gt", "GO TELL", "YOUR KING:", "#7a1a1a", "#ffe9a0", T.T_GOTELL, T.T_SAME, 1.0, D + 3.2, 1.6, 2.6, 0.03); plateAt("hn", "I'LL DO THE", "SAME TO HIM!", "#c92a2e", "#ffffff", T.T_SAME, 22.8, 1.0, D + 3.2, 1.6, 2.7, -0.03); plateAt("claim", "(HIS CLAIM)", "", "#2a1a10", "#ffd84a", T.T_TOLD, T.T_GOTELL, 1.0, D + 3.2, 1.6, 2.6, 0.02); }
+      if (t >= T.T_SAID && t < T.T_CUT) for (let k = 0; k < 2; k++) s.fx("bg", 120, 120, bang, 0.2 + 2.0 * k, D + 3.0 + 0.15 * Math.sin(t * 5 + k), 1.4, 0.7 * pop(t - T.T_SAID - 0.3 * k), 0.7 * pop(t - T.T_SAID - 0.3 * k));
+      // legend: the jar (22.9 - 26.9)
+      if (t >= T.T_LEGEND && t < T.T_JAR - 0.3) { plateAt("lg", "LEGEND SAYS...", "", "#3a2a6a", "#ffffff", T.T_LEGEND, T.T_JAR - 0.3, jx + 0.3, D + 3.2, 1.4, 3.2, 0.03); qm(jx + 1.8, D + 3.0, 1.2, T.T_LEGEND + 0.3, 0, 1.0); }
+      if (t >= T.T_JAR - 0.4 && t < 26.9) { const a = t - T.T_JAR, e = pop(a, 0.4), glow = 1 + 0.06 * Math.sin(t * 4); s.fx("jarg", 200, 200, glowC("255,230,150"), jx + 1.0, D + 2.4, 1.0, 2.2 * glow, 2.2 * glow, { soft: true }); s.fx("jar", 180, 220, jarC, jx + 1.0, D + 2.4 + 0.08 * Math.sin(t * 3), 1.2, 1.2 * e, 1.45 * e, { rot: -0.05 + 0.04 * Math.sin(t * 2.4) }); }
     }
-    if (t >= T.T_SEARCH && t < 14.6) { const sh = t < T.T_NOTHING ? 0.06 * Math.sin(t * 20) : 0; s.fx("chest", 200, 180, chestC, 2.0 + sh, D + 0.9, 1.6, 1.8, 1.6); for (let k = 0; k < 3; k++) { const u = (t * 0.9 + k / 3) % 1; if (t < T.T_NOTHING) s.fx("dust", 120, 120, dustC, 2.0 + 0.5 * (k - 1), D + 1.4 + 1.4 * u, 1.9, 0.9, 0.7, { soft: true }); } }
-    if (t >= 9.9 && t < 11.7) { const e = pop(t - 9.9, 0.4); s.fx("cuba", 600, 240, plate("CUBA", "", "#2a1a10", "#ffd84a"), 5, D + 4.2, -1.0, 3.2 * e, 1.28 * e, { rot: 0.03 }); }
-    if (t >= T.T_CUBA - 0.2 && t < 11.8) { }
-    plateAt("capt", "ROBERT", "JENKINS", "#2a3f8a", "#ffffff", T.T_CAPT, 9.6, jx, D + 4.0, 1.2, 2.7, -0.03);
-    if (t >= T.T_NOTHING && t < 15.0) { const e = pop(t - T.T_NOTHING, 0.4); s.fx("noth", 600, 240, plate("NOTHING!", "", "#6a1a1a", "#ffffff"), 1.8, D + 3.7, 1.6, 3.0 * e, 1.2 * e, { rot: 0.04 }); s.fx("shrg", 120, 120, qmark, 3.2, D + 3.4, 1.4, 0.9 * pop(t - T.T_NOTHING), 0.9 * pop(t - T.T_NOTHING)); }
-    if (t >= T.T_ANGRY && t < T.T_CUT) for (let k = 0; k < 2; k++) s.fx("bg", 120, 120, bang, 0.2 + 2.0 * k, D + 3.9 + 0.15 * Math.sin(t * 7 + k), 1.4, 0.8 * pop(t - T.T_ANGRY - 0.2 * k), 0.8 * pop(t - T.T_ANGRY - 0.2 * k));
-    if (t >= T.T_SNEER && t < 22.7) { plateAt("gt", "GO TELL", "YOUR KING:", "#7a1a1a", "#ffe9a0", T.T_GOTELL, T.T_NEXT, 1.0, D + 3.8, 1.6, 2.6, 0.03); plateAt("hn", "HE'S", "NEXT!", "#c92a2e", "#ffffff", T.T_NEXT, 22.7, 1.0, D + 3.8, 1.6, 2.4, -0.03); }
-    // the jar (24.9 - 27)
-    if (t >= T.T_KEEP && t < 26.9) { const a = t - T.T_KEEP, e = pop(a, 0.4), glow = 1 + 0.06 * Math.sin(t * 4); s.fx("jarg", 200, 200, glowC("255,230,150"), jx + 1.0, D + 2.4, 1.0, 2.2 * glow, 2.2 * glow, { soft: true }); s.fx("jar", 180, 220, jarC, jx + 1.0, D + 2.4 + 0.08 * Math.sin(t * 3), 1.2, 1.2 * e, 1.45 * e, { rot: -0.05 + 0.04 * Math.sin(t * 2.4) }); }
-    if (t >= T.T_JAR - 0.2 && t < 26.9) { const e = pop(t - T.T_JAR + 0.2, 0.4); s.fx("pk", 600, 240, plate("PICKLED!", "", "#3a6a3a", "#e8ffd8"), jx + 0.2, D + 4.0, 1.2, 3.2 * e, 1.28 * e, { rot: 0.03 }); }
-    // 78.5: all because of one little ear
-    if (t >= T.T_BECAUSE && t < T.T_CTA - 0.2) { const e = pop(t - T.T_BECAUSE, 0.4); if (t >= T.T_EAR2) { const g = 1 + 0.06 * Math.sin(t * 4); s.fx("eg", 200, 200, glowC("255,214,120"), -0.4, D + 3.8, 0.6, 5.0 * g, 5.0 * g, { soft: true }); s.fx("bigear", 140, 180, earC, -0.4, D + 3.8 + 0.12 * Math.sin(t * 3), 1.0, 2.2 * pop(t - T.T_EAR2, 0.5), 2.8 * pop(t - T.T_EAR2, 0.5), { rot: 0.1 * Math.sin(t * 2) }); } plateAt("oe", "ONE", "LITTLE EAR", "#2a1a10", "#ffd84a", T.T_BECAUSE, T.T_CTA - 0.2, -0.9, D + 2.4, 1.6, 2.2, 0.02); void e; }
+    // ----- 83 - 88: "the ear was just an excuse; the real fight was about trade" -----
+    if (late && t < T.T_CTA - 0.2) {
+      const g = 1 + 0.05 * Math.sin(t * 3);
+      s.fx("eg", 200, 200, glowC("255,214,120"), -2.2, D + 2.6, 0.6, 3.0 * g, 3.0 * g, { soft: true });
+      s.fx("bigear", 140, 180, earC, -2.2, D + 2.6 + 0.1 * Math.sin(t * 3), 1.0, 1.2, 1.5, { rot: 0.1 * Math.sin(t * 2) });
+      who(2, SOFF, "soff", 1.9, 0.4, "smile", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] } }, 1.25, idle(t, 2, 1.5), D);
+      plateAt("exc", "JUST AN", "EXCUSE!", "#c92a2e", "#ffffff", T.T_EXC, T.T_TRADE - 0.2, -0.3, 4.4, 1.4, 2.6, -0.03);
+      if (t >= T.T_TRADE - 0.2) {
+        plateAt("trd", "THE REAL FIGHT:", "TRADE!", "#2a3f8a", "#ffd84a", T.T_TRADE, T.T_CTA - 0.2, 0, D + 4.8, 1.4, 3.6, 0.03);
+        for (let k = 0; k < 3; k++) s.fx("chest", 200, 180, chestC, -3 + 3 * k, D + 0.9, -1.8, 1.5, 1.3);
+        for (let k = 0; k < 10; k++) { const u = (t * 0.45 + hh(k, 2)) % 1; s.fx("coin", 120, 120, coin, -3.5 + 7 * hh(k, 3), D + 6.4 * (1 - u), 0.2, 0.55, 0.55, { rot: t * 4 + k }); }
+        for (let k = 0; k < 2; k++) s.fx(`shp${k}`, 300, 300, shipC(k ? "#f1c232" : "#c8352a"), -5.6 + 11.2 * k, D + 1.1 + 0.15 * Math.sin(t * 1.7 + k), -3.5, 2.6, 2.6, {});
+      }
+    }
     // ----- finale (CTA) -----
     if (t >= T.T_CTA - 0.2) {
       const g = 1 + 0.08 * Math.sin(t * 3), fol = t >= T.T_FOLLOW;
@@ -299,103 +316,117 @@ export const stage = (f: number, cam: CamInfo): Stage => {
   }
 
   // ====================================================== LONDON STREET (x = -40) ======================================================
-  if ((t >= 26.2 && t < 28.9) || (t >= 33.9 && t < 37.0) || (t >= 40.4 && t < 43.2)) {
+  if ((t >= 25.8 && t < 27.9) || (t >= 34.6 && t < 38.6) || (t >= 45.4 && t < 52.4)) {
     const lx = T.LX;
-    if (t < 28.9) { const u = clamp01((t - 26.4) / 2.2), x = lerp(lx + 6, lx - 5, glide(u)); stride(40, JEN, "jenL", x, 1.0, "pained", -1, 1.6, { l: [-0.3, -0.9], r: [0.4, 0.3] }, 1.25, 0); s.fx("jarL", 180, 220, jarC, x + 0.9, 2.5, 1.2, 1.0, 1.2, { rot: 0.05 * Math.sin(t * 6) }); plateAt("lon", "LONDON", "", "#2a1a10", "#ffd84a", T.T_LONDON, 28.9, lx - 1.0, 6.0, 1.2, 3.0, -0.03); }
-    else {
-      const loud = t >= 40 ? 1.5 : 1;
-      for (let k = 0; k < 12; k++) { const x = lx - 5.4 + 0.95 * k + 0.25 * hh(k, 2), z = -0.6 + 0.9 * (k % 3) + 0.25 * hh(k, 4); shout(50 + k, CITIZEN(k), `lc${k % 4}`, x, z, loud, 1.15, 0, k % 4 === 0 ? "fork" : null); }
+    if (t < 27.9) { const u = clamp01((t - 26.0) / 1.6), x = lerp(lx + 6, lx - 5, glide(u)); stride(40, JEN, "jenL", x, 1.0, "pained", -1, 1.6, { l: [-0.3, -0.9], r: [0.4, 0.3] }, 1.25, 0); s.fx("jarL", 180, 220, jarC, x + 0.9, 2.5, 1.2, 1.0, 1.2, { rot: 0.05 * Math.sin(t * 6) }); plateAt("lon", "ENGLAND", "", "#2a1a10", "#ffd84a", T.T_ENG, 27.9, lx - 1.0, 6.0, 1.2, 3.0, -0.03); }
+    else if (t < 38.6) {
+      for (let k = 0; k < 12; k++) { const x = lx - 5.4 + 0.95 * k + 0.25 * hh(k, 2), z = -0.6 + 0.9 * (k % 3) + 0.25 * hh(k, 4); shout(50 + k, CITIZEN(k), `lc${k % 4}`, x, z, 1.2, 1.15, 0, k % 4 === 0 ? "fork" : null); }
       for (let k = 0; k < 4; k++) flame(lx - 4.2 + 2.6 * k, 4.0 + 0.1 * Math.sin(t * 5 + k), -1.2, 0.9, k);
-      for (let k = 0; k < 3; k++) s.fx("bg", 120, 120, bang, lx - 3 + 3 * k, 4.4 + 0.2 * Math.sin(t * 5 + k), -1.6, 0.8 * pop(t - (t < 37 ? T.T_SCREAM : T.T_LOUD) - 0.12 * k), 0.8 * pop(t - (t < 37 ? T.T_SCREAM : T.T_LOUD) - 0.12 * k));
-      if (t < 37) plateAt("rev", "REVENGE!", "", "#c92a2e", "#ffffff", 35.3, 37.0, lx, 6.2, 1.2, 3.6, -0.03);
-      else plateAt("wrw", "WAR! WAR!", "", "#c92a2e", "#ffffff", 41.3, 43.2, lx, 6.2, 1.2, 3.8, 0.03);
+      for (let k = 0; k < 3; k++) s.fx("news", 160, 120, (p) => { p.poly(rr(10, 10, 150, 110, 6), "#f4efe0", 6); for (let i = 0; i < 5; i++) p.stroke([[24, 30 + i * 16], [136, 30 + i * 16]], 4, "#5a5a60"); const g = p.g; font(g, 20); g.fillStyle = "#c92a2e"; g.fillText("REVENGE!", 80, 24); }, lx - 3 + 3 * k, 4.6 + 0.2 * Math.sin(t * 3 + k), -1.6, 1.3 * pop(t - T.T_PRESS - 0.15 * k), 1.0 * pop(t - T.T_PRESS - 0.15 * k), { rot: 0.1 * Math.sin(t * 3 + k) });
+      plateAt("rev", "REVENGE!", "", "#c92a2e", "#ffffff", T.T_REV - 0.4, 38.6, lx, 6.4, 1.2, 3.6, -0.03);
+    } else {
+      // 1858: the writer Thomas Carlyle names the war
+      const CARL: Outfit = { jacket: "#4a3a2a", pants: "#3a3a30", boots: "#1a1a20", hat: null, moustache: "#8a8a8a", skin: SKINS[0], build: "adult" };
+      const w = Math.sin(t * 3);
+      who(130, CARL, "carl", lx, 1.2, t >= T.T_NAMED ? "grin" : "neutral", { arms: { l: [-0.5, 0.3], r: [0.5, ar(-0.3 + 0.3 * w)] }, ...(t >= T.T_CARL ? { held: "scroll" as const } : {}) }, 1.3, idle(t, 130, 1.5), 0);
+      plateAt("y58", "1858", "", "#2a1a10", "#ffd84a", T.T_1858, T.T_CARL, lx, 4.8, 1.2, 2.6, -0.03);
+      plateAt("car", "THOMAS", "CARLYLE", "#2a3f8a", "#ffffff", T.T_CARL, T.T_NAMED, lx, 4.7, 1.4, 2.8, 0.03);
+      if (t >= T.T_NAMED - 0.2) {
+        const g = 1 + 0.05 * Math.sin(t * 4);
+        s.fx("eg3", 200, 200, glowC("255,214,120"), lx, 3.0, 1.0, 4.6 * g, 4.6 * g, { soft: true });
+        s.fx("ear4", 140, 180, earC, lx + 1.8, 2.8 + 0.12 * Math.sin(t * 2.4), 1.4, 1.5 * pop(t - T.T_NAMED, 0.45), 1.9 * pop(t - T.T_NAMED, 0.45), { rot: 0.1 * Math.sin(t * 2) });
+        plateAt("woj", "WAR OF", "JENKINS' EAR", "#c92a2e", "#ffffff", T.T_NAMED, 52.4, lx, 5.0, 1.6, 3.4, -0.03);
+      }
     }
   }
 
   // ====================================================== PARLIAMENT (x = -80) ======================================================
-  const inPar = (t >= 28.5 && t < 34.4) || (t >= 37.0 && t < 40.6) || (t >= 42.7 && t < 50.9);
+  const inPar = (t >= 27.4 && t < 35.0) || (t >= 38.0 && t < 45.6);
   if (inPar) {
-    const px = T.PX, gasp = t >= T.T_GASP, decl = t >= T.T_DECL;
+    const px = T.PX, doubt = t >= T.T_DOUBT && t < 35.0, decl = t >= T.T_DECL;
     for (let k = 0; k < 6; k++) {
-      const sg = k < 3 ? -1 : 1, x = px + sg * (2.3 + 1.2 * (k % 3)) + 0.2 * hh(k, 2), z = -2.6 - 0.4 * (k % 2), rt = t - T.T_GASP - 0.06 * k;
-      if (t >= 46.6 || decl) { cheer(60 + k, LORD(k), `lord${k % 4}`, x, z, 1.3, 0.12, 1.1, 0); }
-      else if (gasp && t < 37) who(60 + k, LORD(k), `lord${k % 4}`, x, z, "shock", { arms: { l: [-0.55, -0.7], r: [0.55, -0.7] } }, 1.1, { dy: 0.1 * pulse(rt, 0.5), sx: 1 + 0.05 * pulse(rt, 0.5), sy: 1 - 0.04 * pulse(rt, 0.5), lean: sg * 0.04 * pulse(rt, 0.6) }, 0);
-      else idleW(60 + k, LORD(k), `lord${k % 4}`, x, z, t >= 37.4 && t < 40.6 ? "stern" : "neutral", 1.1, 0);
+      const sg = k < 3 ? -1 : 1, x = px + sg * (2.3 + 1.2 * (k % 3)) + 0.2 * hh(k, 2), z = -2.6 - 0.4 * (k % 2), rt = t - T.T_HOLD - 0.06 * k;
+      if (decl) cheer(60 + k, LORD(k), `lord${k % 4}`, x, z, 1.3, 0.12, 1.1, 0);
+      else if (doubt) { const w = Math.sin(t * 6 + k); who(60 + k, LORD(k), `lord${k % 4}`, x, z, "stern", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] }, headTilt: ar(0.22 * w) }, 1.1, idle(t, 60 + k, 1.5), 0); }
+      else if (t >= T.T_HOLD && t < T.T_DOUBT) who(60 + k, LORD(k), `lord${k % 4}`, x, z, "shock", { arms: { l: [-0.55, -0.6], r: [0.55, -0.6] } }, 1.1, { dy: 0.06 * pulse(rt, 0.5), sx: 1 + 0.04 * pulse(rt, 0.5), sy: 1 - 0.03 * pulse(rt, 0.5), lean: sg * 0.03 * pulse(rt, 0.6) }, 0);
+      else idleW(60 + k, LORD(k), `lord${k % 4}`, x, z, t >= 38.0 ? "stern" : "neutral", 1.1, 0);
     }
-    who(70, LORD(3), "speaker", px, -8.0, gasp && t < 37 ? "shock" : "stern", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] } }, 1.15, idle(t, 70, 1.5), 1.35, false);
-    // Jenkins: walks in, raises the jar
-    if (t >= 28.5 && t < 34.4) {
-      const u = clamp01((t - 29.2) / 1.5), z = lerp(8.0, 1.4, glide(u)), up = clamp01((t - T.T_HOLD + 0.2) / 0.5);
+    who(70, LORD(3), "speaker", px, -8.0, "stern", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] } }, 1.15, idle(t, 70, 1.5), 1.35, false);
+    if (t < 35.0) {
+      const u = clamp01((t - 28.4) / 1.3), z = lerp(8.0, 1.4, glide(u)), up = clamp01((t - T.T_HOLD + 0.2) / 0.5);
       if (u < 1) stride(41, JEN, "jenP", px, z, "stern", 0, 1.4, { l: [-0.4, 0.3], r: [0.5, 0.0] }, 1.25, 0);
-      else who(41, JEN, "jenP", px, 1.4, gasp ? "grin" : "stern", { arms: { l: [-0.45, 0.35], r: [0.55, ar(0.0 - 0.95 * up)] } }, 1.25, { dy: 0.04 * pulse(t - T.T_HOLD + 0.2, 0.5), sx: 1, sy: 1 + 0.03 * up, lean: -0.03 * up }, 0);
+      else who(41, JEN, "jenP", px, 1.4, doubt ? "nervous" : "stern", { arms: { l: [-0.45, 0.35], r: [0.55, ar(0.0 - 0.95 * up)] } }, 1.25, { dy: 0.04 * pulse(t - T.T_HOLD + 0.2, 0.5), sx: 1, sy: 1 + 0.03 * up, lean: -0.03 * up }, 0);
       if (t >= T.T_HOLD - 0.3) { const e = pop(t - T.T_HOLD + 0.3, 0.4), g = 1 + 0.06 * Math.sin(t * 4); s.fx("jgl", 200, 200, glowC("255,230,150"), px + 1.0, 4.5, 1.4, 2.8 * g, 2.8 * g, { soft: true }); s.fx("jarP", 180, 220, jarC, px + 1.0, 4.4 + 0.06 * Math.sin(t * 3), 1.6, 1.5 * e, 1.8 * e, { rot: -0.06 + 0.04 * Math.sin(t * 2.6) }); }
-      if (gasp) for (let k = 0; k < 3; k++) s.fx("bg", 120, 120, bang, px - 2.6 + 2.6 * k, 4.6 + 0.2 * Math.sin(t * 6 + k), -1.6, 1.0 * pop(t - T.T_GASP - 0.1 * k), 1.0 * pop(t - T.T_GASP - 0.1 * k));
-      plateAt("y38", "1738", "", "#2a1a10", "#ffd84a", T.T_1738, 30.6, px, 7.0, 0.5, 3.0, -0.03);
+      plateAt("y38", "1738", "", "#2a1a10", "#ffd84a", T.T_1738, T.T_QUEST, px, 7.0, 0.5, 3.0, -0.03);
+      plateAt("qs", "QUESTIONED BY", "PARLIAMENT", "#2a3f8a", "#ffffff", T.T_QUEST, T.T_LEG2, px, 6.6, 0.5, 3.4, 0.03);
+      plateAt("lgd", "LEGEND:", "HE SHOWED THE EAR!", "#3a2a6a", "#ffffff", T.T_LEG2, T.T_DOUBT, px, 6.8, 0.5, 3.8, -0.03);
+      plateAt("hd", "HISTORIANS", "DOUBT IT!", "#6a1a1a", "#ffffff", T.T_DOUBT, 34.6, px, 6.8, 0.5, 3.4, 0.03);
+      if (doubt) for (let k = 0; k < 3; k++) qm(px - 2.6 + 2.6 * k, 4.4, -1.6, T.T_DOUBT + 0.1, k, 1.0);
     }
-    // Walpole
-    if (t >= 37.0 && t < 50.9) {
-      const sh = t >= T.T_NOWAR && t < 40.6 ? Math.sin(t * 7) : 0, sad = t >= T.T_DECL;
+    if (t >= 38.0) {
+      const sh = t >= T.T_NOWAR && t < 41.6 ? Math.sin(t * 7) : 0, sad = t >= T.T_DECL;
       who(71, WALP, "walp", px - 0.8, 0.6, t < T.T_NOWAR ? "neutral" : sad ? "pained" : "stern", { arms: { l: [-0.5, 0.35], r: [0.5, 0.35] }, headTilt: ar(0.22 * sh) }, 1.3, { dy: 0, sx: 1, sy: sad ? 0.96 : 1, lean: 0.03 * sh }, 0);
       plateAt("pm", "PRIME MINISTER", "WALPOLE", "#2a3f8a", "#ffffff", T.T_WALP + 0.2, T.T_NOWAR, px - 0.8, 4.7, 1.4, 2.7, -0.03);
-      plateAt("nw", "NO WAR!", "", "#6a1a1a", "#ffffff", T.T_NOWAR + 0.1, 41.0, px - 0.6, 5.0, 1.4, 2.7, 0.03);
-      plateAt("y39", "1739", "", "#2a1a10", "#ffd84a", T.T_1739, 44.4, px, 6.3, 1.0, 2.4, -0.03);
-      if (t >= T.T_DECL && t < 46.6) { const e = pop(t - T.T_DECL, 0.45); s.fx("scr", 300, 160, scroll("WAR ON SPAIN"), px + 0.6, 3.6 + 0.08 * Math.sin(t * 3), 1.8, 2.9 * e, 1.55 * e, { rot: -0.03 }); plateAt("dec", "WAR!", "", "#c92a2e", "#ffffff", T.T_DECL + 0.5, 46.6, px, 6.0, 1.4, 2.6, 0.03); }
-    }
-    if (t >= 46.6) {
-      const g = 1 + 0.05 * Math.sin(t * 4);
-      s.fx("eg2", 200, 200, glowC("255,214,120"), px, 3.6, 1.2, 5.0 * g, 5.0 * g, { soft: true });
-      s.fx("ear3", 140, 180, earC, px, 3.7 + 0.15 * Math.sin(t * 2.4), 1.6, 2.1 * pop(t - 46.6, 0.45), 2.65 * pop(t - 46.6, 0.45), { rot: 0.1 * Math.sin(t * 2) });
-      plateAt("woj", "WAR OF", "JENKINS' EAR", "#c92a2e", "#ffffff", T.T_WOJ - 0.4, 50.9, px, 6.4, 1.6, 3.6, -0.03);
+      plateAt("nw", "NO WAR!", "", "#6a1a1a", "#ffffff", T.T_NOWAR, 41.9, px - 0.6, 5.0, 1.4, 2.7, 0.03);
+      plateAt("y39", "1739", "", "#2a1a10", "#ffd84a", T.T_1739, T.T_DECL, px, 6.3, 1.0, 2.4, -0.03);
+      if (t >= T.T_DECL && t < 45.6) { const e = pop(t - T.T_DECL, 0.45); s.fx("scr", 300, 160, scroll("WAR ON SPAIN"), px + 0.4, 3.6 + 0.08 * Math.sin(t * 3), 1.8, 2.3 * e, 1.23 * e, { rot: -0.03 }); plateAt("dec", "WAR!", "", "#c92a2e", "#ffffff", T.T_DECL + 0.5, 45.6, px, 6.0, 1.4, 2.6, 0.03); }
     }
   }
 
   // ====================================================== CARTAGENA (x = -120) ======================================================
-  if (t >= 50.5 && t < 73.0) {
+  if (t >= 52.0 && t < 83.4) {
     const wx = T.WX, fx0 = T.FORT_X;
     const ships = (n: number, t0: number, flag: string, hullc: string, zs: number[], xs: number[], sink = 1e9, k0 = 0) => { for (let k = 0; k < n; k++) { const u = clamp01((t - t0 - 0.11 * k) / 3.2); if (t < t0) continue; const x = lerp(xs[k] + 22, xs[k], glide(u)), zz = zs[k], bobY = 0.12 * Math.sin(t * 1.7 + k * 1.3), sk = clamp01((t - sink - 0.18 * k) / 2.0), y = 2.0 - 3.4 * sk * sk + bobY; if (y < -1.5) continue; s.fx(`sh${flag}${k0 + (k % 3)}`, 300, 300, shipC(flag, hullc), x, y, zz, 4.2, 4.2, { rot: 0.05 * Math.sin(t * 1.4 + k) + 0.5 * sk }); if (u > 0 && u < 1) s.fx("wv", 160, 80, wavesC, x - 2.0, 0.25, zz + 0.9, 1.6, 0.8, {}); } };
-    // Vernon on the shore (50.7 - 52.8)
-    if (t < 53.2) { const pt = 0.2 * Math.sin(t * 3); who(80, VERN, "vern", wx + 10.0, 1.0, "grin", { arms: { l: [-0.5, 0.35], r: [ar(0.9 + 0.0), ar(-0.5 + 0.1 * Math.sin(t * 3))] } }, 1.3, add(idle(t, 80, 1.5), { dy: 0, sx: 1, sy: 1, lean: 0.03 * pt }), 0); plateAt("vern", "ADMIRAL", "VERNON", "#2a3f8a", "#ffffff", T.T_VERN, 53.0, wx + 10.0, 4.8, 1.8, 2.6, -0.03); ships(3, 51.4, "#c8352a", "#4a3022", [-5, -7, -9], [wx + 2, wx - 2, wx - 6], 1e9, 0); }
-    if (t >= 52.8 && t < 66.4) {
-      plateAt("y41", "1741", "", "#2a1a10", "#ffd84a", T.T_1741, 54.4, wx - 4, 9.0, -6, 3.6, -0.03);
-      plateAt("cart", "CARTAGENA", "", "#c92a2e", "#ffffff", T.T_CART, 56.3, wx - 4, 9.0, -6, 5.6, 0.03);
-      const n = t < 56.2 ? 6 : 14, zs = [-5, -7, -9, -6, -8, -10, -12, -11, -13, -5.5, -9.5, -12.5, -7.5, -10.5], xs = [-2, -6, -10, -14, -18, -22, -4, -8, -12, 0, -16, -20, 2, -24].map((x) => wx - 4 + (x + 10) * 0.45);
-      ships(n, 52.9, "#c8352a", "#4a3022", zs, xs, 66.7, 0);
-      if (t >= T.T_200 - 0.2 && t < 58.0) { const e = pop(t - T.T_200, 0.4); s.fx("p200", 600, 240, plate("ALMOST", "200 SHIPS", "#c92a2e", "#ffffff"), wx - 4, 8.2, -4, 5.0 * e, 2.0 * e, { rot: -0.03 }); }
+    const VX = wx + 10.0;
+    if (t < 55.6) { const pt = 0.2 * Math.sin(t * 3); plateAt("y41", "1741", "", "#2a1a10", "#ffd84a", T.T_1741, 54.0, VX, 5.0, 1.8, 2.6, 0.03); who(80, VERN, "vern", VX, 1.0, "grin", { arms: { l: [-0.5, 0.35], r: [ar(0.9), ar(-0.5 + 0.1 * Math.sin(t * 3))] } }, 1.3, add(idle(t, 80, 1.5), { dy: 0, sx: 1, sy: 1, lean: 0.03 * pt }), 0); plateAt("vern", "ADMIRAL", "VERNON", "#2a3f8a", "#ffffff", T.T_VERN - 0.3, 55.6, VX, 4.8, 1.8, 2.6, -0.03); ships(3, 52.8, "#c8352a", "#4a3022", [-5, -7, -9], [wx + 2, wx - 2, wx - 6], 1e9, 0); }
+    if (t >= 54.0 && t < 68.0) {
+      plateAt("cart", "CARTAGENA", "", "#c92a2e", "#ffffff", T.T_CART, 57.3, wx - 4, 9.0, -6, 5.6, 0.03);
+      const n = t < 57.0 ? 6 : 14, zs = [-5, -7, -9, -6, -8, -10, -12, -11, -13, -5.5, -9.5, -12.5, -7.5, -10.5], xs = [-2, -6, -10, -14, -18, -22, -4, -8, -12, 0, -16, -20, 2, -24].map((x) => wx - 4 + (x + 10) * 0.45);
+      ships(n, 54.0, "#c8352a", "#4a3022", zs, xs, 68.2, 0);
+      if (t >= T.T_180 - 0.2 && t < 58.8) { const e = pop(t - T.T_180, 0.4); s.fx("p200", 600, 240, plate("ABOUT", "180 SHIPS", "#c92a2e", "#ffffff"), wx - 4, 8.2, -4, 5.0 * e, 2.0 * e, { rot: -0.03 }); }
     }
-    // Spanish fort + Blas de Lezo (58 - 66.4)
-    if (t >= 57.8 && t < 66.4) {
+    // Spain: Blas de Lezo at the fort (58.8 - 68)
+    if (t >= 58.5 && t < 68.4) {
       const blasX = fx0, by = 3.2, w = Math.sin(t * 3);
-      const pose = t >= T.T_EYE ? "grin" : "stern";
+      const pose = t >= T.T_WON ? "laugh" : t >= T.T_EYE ? "grin" : "stern";
       who(90, BLAS, "blas", blasX, -7.2, pose, { arms: { l: [-0.5, ar(0.3 + 0.1 * w)], r: [0.55, ar(-0.6 + 0.3 * w)] } }, 1.4, add(idle(t, 90, 1.5), { dy: 0, sx: 1, sy: 1, lean: 0.02 * w }), by, false);
-      plateAt("blas", "BLAS", "DE LEZO", "#a83a2a", "#ffe9a0", T.T_BLAS, 61.2, blasX, 8.2, -5.6, 2.8, -0.03);
-      for (const [k, tt, kind] of [[0, T.T_EYE, "eye"], [1, T.T_ARM, "arm"], [2, T.T_LEG, "leg"]] as const) if (t >= tt - 0.1) { const e = pop(t - tt, 0.5); s.fx("one" + kind, 200, 200, oneC(kind), blasX - 2.0 + 2.0 * k, 7.6 + 0.12 * Math.sin(t * 3 + k), -6.0, 1.7 * e, 1.7 * e, { rot: 0.06 * Math.sin(t * 2 + k) }); }
-      if (t >= T.T_FEW) {
-        for (let k = 0; k < 6; k++) { const x = blasX - 4.2 + 1.5 * k, z = -7.4, bn = hop(t, 100 + k, 1.4, 0.1); who(100 + k, SSAIL(k), `ssw${k}`, x, z, k % 2 ? "laugh" : "grin", { arms: { l: [-0.55, ar(-0.9 + 0.15 * Math.sin(t * 5 + k))], r: [0.55, ar(-0.9 - 0.15 * Math.sin(t * 5 + k))] } }, 1.1, bn, by, false); }
-        const e = pop(t - T.T_FEW, 0.4);
-        if (t < 66.4) s.fx("fw", 600, 240, plate("FEW SHIPS,", "FEW MEN", "#a83a2a", "#ffe9a0"), blasX, 8.4, -5.6, 3.6 * e, 1.44 * e, { rot: 0.03 });
+      plateAt("blas", "BLAS", "DE LEZO", "#a83a2a", "#ffe9a0", T.T_BLAS - 0.8, T.T_SIX, blasX, 6.6, -5.6, 2.8, -0.03);
+      if (t >= T.T_SIX - 0.1 && t < T.T_EYE - 0.3) {   // only six Spanish ships, about 3000 men
+        for (let k = 0; k < 6; k++) s.fx(`spsh${k % 3}`, 300, 300, shipC("#f1c232", "#6a3a22"), -139 + 2.6 * (k - 2.5) + 0.0, 1.4 + 0.1 * Math.sin(t * 1.8 + k), -2.0 - 1.3 * (k % 2), 2.4, 2.4, {});
+        plateAt("six", "ONLY 6 SHIPS", "", "#a83a2a", "#ffe9a0", T.T_SIX, T.T_3000, -133, 8.0, -4.0, 5.2, -0.03);
+        plateAt("k3", "~3,000 MEN", "", "#a83a2a", "#ffe9a0", T.T_3000, T.T_EYE - 0.3, -133, 8.0, -4.0, 5.2, 0.03);
       }
+      for (const [k, tt, kind] of [[0, T.T_EYE, "eye"], [1, T.T_ARM, "arm"], [2, T.T_LEG, "leg"]] as const) if (t >= tt - 0.1 && t < 68.4) { const e = pop(t - tt, 0.5); s.fx("one" + kind, 200, 200, oneC(kind), blasX - 1.8 + 1.8 * k, 7.4 + 0.12 * Math.sin(t * 3 + k), -6.0, 1.4 * e, 1.4 * e, { rot: 0.06 * Math.sin(t * 2 + k) }); }
+      if (t >= T.T_WON) { for (let k = 0; k < 6; k++) { const x = blasX - 4.2 + 1.5 * k, z = -7.4; who(100 + k, SSAIL(k), `ssw${k}`, x, z, k % 2 ? "laugh" : "grin", { arms: { l: [-0.55, ar(-0.9 + 0.15 * Math.sin(t * 5 + k))], r: [0.55, ar(-0.9 - 0.15 * Math.sin(t * 5 + k))] } }, 1.1, hop(t, 100 + k, 1.4, 0.1), by, false); } }
     }
-    if (t >= T.T_CRUSH - 0.1 && t < 69.4) {
-      for (let k = 0; k < 2; k++) { const sx = wx - 8 + 4 * k; s.fx(`spsh${k}`, 300, 300, shipC("#f1c232", "#6a3a22"), sx, 2.0 + 0.1 * Math.sin(t * 1.8 + k), -3.2, 3.8, 3.8, {}); }
-      for (let k = 0; k < 10; k++) { const tf = T.T_CRUSH + 0.28 * k; const xb = wx - 14 + 3.2 * (k % 7) + 0.8 * hh(k, 2); burstAt(tf, xb, 2.0 + 0.6 * (k % 3), -7.0 - 0.8 * (k % 3), 2.8, 0.4, "#ffd27a"); puffAt(tf + 0.05, xb + 0.4, 2.6, -7.2, 2.0, 1.1); }
-      for (let k = 0; k < 2; k++) { const tf = T.T_CRUSH + 0.15 + 0.9 * k; burstAt(tf, wx - 7 + 4 * k + 1.2, 2.8, -2.4, 2.4, 0.35, "#ffffff"); }
-      const e = pop(t - T.T_CRUSH, 0.4); s.fx("crsh", 600, 240, plate("CRUSHED!", "", "#c92a2e", "#ffffff"), wx - 6, 8.6, -4, 4.2 * e, 1.7 * e, { rot: -0.03 });
+    if (t >= T.T_WON - 0.3 && t < 69.6) {   // Spain won: the English fleet breaks up
+      const e = pop(t - T.T_WON, 0.4); s.fx("won", 600, 240, plate("SPAIN WON!", "", "#a83a2a", "#ffe9a0"), wx - 6, 8.6, -4, 4.2 * e, 1.7 * e, { rot: -0.03 });
+      for (let k = 0; k < 8; k++) { const tf = T.T_WON + 0.25 * k, xb = wx - 14 + 3.2 * (k % 6) + 0.8 * hh(k, 2); burstAt(tf, xb, 2.0 + 0.6 * (k % 3), -7.0 - 0.8 * (k % 3), 2.8, 0.4, "#ffd27a"); puffAt(tf + 0.05, xb + 0.4, 2.6, -7.2, 2.0, 1.1); }
+    }
+    // Vernon's medals (legend) 73.2 - 78.2
+    if (t >= 73.0 && t < 78.4) {
+      const vx = -110.5, w = Math.sin(t * 3);
+      who(81, VERN, "vern2", vx, 1.0, "grin", { arms: { l: [-0.5, 0.35], r: [ar(0.9), ar(-0.6 + 0.2 * w)] } }, 1.3, idle(t, 81, 1.5), 0);
+      plateAt("lgm", "LEGEND:", "VICTORY MEDALS!", "#3a2a6a", "#ffffff", T.T_MED, T.T_BEFORE, vx, 4.4, 1.8, 2.8, -0.03);
+      plateAt("bef", "BEFORE", "WINNING?", "#6a1a1a", "#ffffff", T.T_BEFORE, 78.4, vx, 4.4, 1.8, 3.0, 0.03);
+      for (let k = 0; k < 5; k++) { const u = (t * 0.35 + k / 5) % 1; s.fx("med", 120, 120, coin, vx - 2.4 + 1.2 * k, 5.0 * (1 - u) + 0.6, 0.4, 0.7, 0.7, { rot: t * 3 + k }); }
+      qm(vx + 1.8, 4.0, 1.0, T.T_BEFORE, 0, 1.0);
     }
   }
-  // sailors die of disease (69.2 - 73)
-  if (t >= 69.0 && t < 73.0) {
+  // sailors die of disease (69.4 - 73): on the shore
+  if (t >= 69.2 && t < 73.2) {
     const dx = -112;
-    for (let k = 0; k < 6; k++) s.fx("gr", 90, 170, gravec, dx - 3.6 + 1.4 * k, 1.1, -2.4 - 0.6 * (k % 2), 0.9 * pop(t - 69.3 - 0.12 * k, 0.4), 1.7 * pop(t - 69.3 - 0.12 * k, 0.4));
+    for (let k = 0; k < 6; k++) s.fx("gr", 90, 170, gravec, dx - 3.6 + 1.4 * k, 1.1, -2.4 - 0.6 * (k % 2), 0.9 * pop(t - T.T_DIED - 0.12 * k, 0.4), 1.7 * pop(t - T.T_DIED - 0.12 * k, 0.4));
     for (let k = 0; k < 3; k++) { const c = Math.sin(t * 5 + k * 2.3); who(110 + k, SICK(k), `sk${k}`, dx - 1.1 + 1.1 * k, 1.2, "pained", { headTilt: 0.2, arms: { l: [-0.3, 0.5], r: [0.3, 0.5] } }, 1.1, { dy: 0, sx: 1 + 0.015 * c, sy: 1 - 0.015 * c, lean: 0.05 * c }, 0); s.fx("sck", 100, 100, sick, dx - 1.1 + 1.1 * k, 3.4, 1.4, 0.7, 0.7); }
-    plateAt("thou", "THOUSANDS", "", "#2a1a10", "#ff6a5a", T.T_DIED, 72.0, dx, 4.2, 0.6, 3.0, -0.03);
-    plateAt("dis", "DISEASE", "", "#3a6a3a", "#e8ffd8", T.T_DIS, 73.2, dx, 4.2, 0.6, 3.0, 0.03);
+    plateAt("thou", "THOUSANDS", "", "#2a1a10", "#ff6a5a", T.T_DIED, T.T_DIS, dx, 4.2, 0.6, 2.3, -0.03);
+    plateAt("dis", "DISEASE", "", "#3a6a3a", "#e8ffd8", T.T_DIS, 73.3, dx, 4.2, 0.6, 2.3, 0.03);
     for (let k = 0; k < 2; k++) s.fx("sk", 120, 120, skull, dx - 1.4 + 2.8 * k, 4.2 + 0.15 * Math.sin(t * 3 + k), 0.2, 0.8, 0.8, { rot: 0.1 * Math.sin(t * 3 + k) });
   }
-  // the war merges into a bigger one (72.8 - 78.4): Europe turns red
-  if (t >= 72.6 && t < 78.9) {
-    const mx = -116, e = pop(t - 72.8, 0.3), u = clamp01((t - 73.2) / 3.6);
+  // the war merges into the bigger War of the Austrian Succession (78.3 - 83.2): Europe turns red
+  if (t >= 78.1 && t < 83.4) {
+    const mx = -116, e = pop(t - 78.3, 0.3), u = clamp01((t - 78.7) / 3.2);
     s.fx("eur", 400, 300, europe(u), mx, 5.0, -1.0, 5.4 * e, 4.05 * e, { rot: 0.0 });
-    plateAt("y48", "UNTIL 1748", "", "#c92a2e", "#ffffff", T.T_1748, 78.6, mx, 1.6, 1.0, 4.0, -0.03);
+    plateAt("y48", "UNTIL 1748", "", "#c92a2e", "#ffffff", T.T_1748, 83.4, mx, 1.6, 1.0, 4.0, -0.03);
     for (let k = 0; k < 3; k++) s.fx("skm", 120, 120, skull, mx - 1.8 + 1.8 * k, 8.1 + 0.15 * Math.sin(t * 3 + k), -0.6, 0.9, 0.9, { rot: 0.1 * Math.sin(t * 3 + k) });
   }
   return s.out;
