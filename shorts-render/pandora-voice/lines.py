@@ -1,0 +1,15 @@
+LINES=[
+("[shouting excitedly]","Everyone knows Pandora's box! But here's the twist: in the original Greek myth, there was no box at all! It was a jar!"),
+("[excited]","The story comes from the poet Hesiod, about seven hundred years before Christ. It starts with a theft: the Titan Prometheus stole fire from the gods, and gave it to humans!"),
+("[furious] [shouting]","Zeus was furious! So as a punishment, he ordered the gods to create the first woman, Pandora."),
+("[dramatic]","According to the myth, Hephaestus, the god of the forge, shaped her out of earth and water."),
+("[excited]","Athena taught her weaving, Aphrodite gave her beauty, and Hermes gave her a clever tongue, and a sly mind. Her name means: all gifts!"),
+("[building tension]","Zeus sent her as a gift to Epimetheus, the brother of Prometheus, even though Prometheus had warned him: never accept a gift from Zeus!"),
+("[mischievously]","In his house stood a large, sealed jar. And inside it, says the myth, were all the evils of the world: sickness, hard work, and grief."),
+("[shouting excitedly]","Then Pandora lifted the lid! Hesiod never says why. The curiosity part? That was added later."),
+("[dramatic] [excited]","Out flew all the evils, and spread across the world! She slammed the lid shut, but only Hope was left inside, stuck under the rim."),
+("[serious]","Why Hope stayed in the jar is still debated. Was it a comfort, or just one more trick?"),
+("[excited] [laughing]","So how did the jar become a box? In 1508, the scholar Erasmus translated the Greek word pithos, a big jar, into the Latin word for box!"),
+("[laughing] [excited]","And that little mistake stuck for five hundred years!"),
+("[cheerful] [excited]","So if you like history and myths, where even the famous version is wrong, follow for more stories like this!"),
+]
