@@ -34,13 +34,13 @@ export type Cam = { pos: V3; look: V3; fov: number; roll: number };
 type Hold = { a: number; tr: number; p0: V3; l0: V3; p1: V3; l1: V3; f0: number; f1?: number; roll?: number };
 const Hd = (a: number, tr: number, p0: V3, l0: V3, p1: V3, l1: V3, f0 = 48, f1?: number, roll = 0): Hold => ({ a, tr, p0, l0, p1, l1, f0, f1, roll });
 /** a = arrival time (the action starts), tr = seconds of travel BEFORE a (fast, eased), drift runs until the next travel starts */
-export const HOLDS: Hold[] = [
+const RAW_HOLDS: Hold[] = [
   Hd(0, 0, [4, 2.6, 10], [0, 1.8, 0], [3, 2.4, 9], [0, 1.8, 0], 52),
   Hd(4.8, 0.5, [0, 2.4, 8], [0, 1.9, 0], [0, 2.4, 7.4], [0, 1.9, 0], 48),
   Hd(6.7, 0.4, [-0.6, 2.2, 6.4], [-0.6, 1.7, 0], [-0.6, 2.2, 5.8], [-0.6, 1.7, 0], 46),
   Hd(8.5, 0.8, [-80, 2.3, 7.6], [-80, 1.8, 0], [-80, 2.3, 7.0], [-80, 1.8, 0], 48),
   Hd(12.1, 0.8, [-40, 3.4, 12], [-40, 1.9, 0], [-40, 3.2, 11], [-40, 1.9, 0], 50),
-  Hd(14.0, 0.4, [-38, 2.6, 8.4], [-38, 1.8, 0], [-38, 2.5, 7.8], [-38, 1.8, 0], 48),
+  Hd(14.0, 0.4, [-39.5, 2.6, 8.4], [-39.5, 1.8, 0], [-39.5, 2.5, 7.8], [-39.5, 1.8, 0], 48),
   Hd(16.6, 0.4, [-42, 3.0, 11], [-42, 1.6, 0], [-42, 2.9, 10], [-42, 1.6, 0], 50),
   Hd(17.9, 0.4, [-40, 2.8, 8.0], [-40, 2.3, -1], [-40, 2.8, 7.4], [-40, 2.3, -1], 48),
   Hd(21.0, 0.5, [-40, 3.2, 11.0], [-40, 2.4, -1], [-40, 3.0, 10.0], [-40, 2.4, -1], 50),
@@ -58,6 +58,14 @@ export const HOLDS: Hold[] = [
   Hd(84.1, 0.5, [-120, 3.0, 10.5], [-120, 2.0, 0], [-120, 3.0, 9.8], [-120, 2.0, 0], 50),
   Hd(87.3, 1.0, [0, 3.4, 11], [0, 2.4, 0], [0, 4.4, 15], [0, 2.8, 0], 52),
 ];
+
+/** pull every hold back so the whole scene fits the narrow 9:16 phone screen (close holds more than wide ones) */
+const zoomOut = (h: Hold): Hold => {
+  const d = Math.hypot(h.p0[0] - h.l0[0], h.p0[2] - h.l0[2]), k = d < 9 ? 1.4 : d < 12 ? 1.3 : 1.18;
+  const mv = (p: V3, l: V3): V3 => [l[0] + (p[0] - l[0]) * k, l[1] + (p[1] - l[1]) * k, l[2] + (p[2] - l[2]) * k];
+  return { ...h, p0: mv(h.p0, h.l0), p1: mv(h.p1, h.l1) };
+};
+export const HOLDS: Hold[] = RAW_HOLDS.map(zoomOut);
 const END_T = 93.4;
 const lerp3 = (a: V3, b: V3, u: number): V3 => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u];
 const ST = HOLDS.map((h) => h.a - h.tr);

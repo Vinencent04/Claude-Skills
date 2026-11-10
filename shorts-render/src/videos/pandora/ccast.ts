@@ -260,11 +260,11 @@ export const stage = (f: number, cam: CamInfo): Stage => {
 
     // ---------- Epimetheus (37 - 74) ----------
     if (t >= 37.4 && t < 73.9) { const e = Math.sin(t * 3.2); who(4, EPI, "epi", -2.6, 0.5, t >= T.T_WARN ? "shock" : "smile", { arms: { l: [-0.5, 0.35], r: [0.5, ar(-0.2 + 0.2 * e)] } }, 1.2, idle(t, 4, 1.5), 0); }
-    if (t >= T.T_EPI && t < T.T_WARN) { const e = pop(t - T.T_EPI, 0.4); s.fx("epiP", 600, 240, plate("EPIMETHEUS", "", "#2a3f8a", "#ffffff"), -2.4, 4.4, 1.0, 3.4 * e, 1.36 * e, { rot: -0.03 }); }
+    if (t >= T.T_EPI && t < T.T_WARN) { const e = pop(t - T.T_EPI, 0.4); s.fx("epiP", 600, 240, plate("EPIMETHEUS", "", "#2a3f8a", "#ffffff"), -1.4, 4.4, 1.0, 3.0 * e, 1.2 * e, { rot: -0.03 }); }
     if (t >= T.T_SENT && t < T.T_EPI) { const e = pop(t - T.T_SENT, 0.4); s.fx("zg", 600, 240, plate("A GIFT FROM ZEUS", "", "#6a8ad8", "#ffffff"), 0.6, 4.6, 1.0, 3.8 * e, 1.52 * e, { rot: 0.03 }); }
     // Prometheus warns him
-    if (t >= T.T_WARN && t < 45.8) { const k = Math.sin(t * 6); who(5, PROM, "prom", 3.4, 0.3, "stern", { arms: { l: [-0.55, ar(-0.9 + 0.2 * k)], r: [0.55, ar(-0.9 - 0.2 * k)] } }, 1.3, { dy: 0.03 * Math.abs(k), sx: 1, sy: 1 + 0.015 * k, lean: 0.025 * k }, 0); for (let i = 0; i < 2; i++) s.fx("bg", 120, 120, bang, 1.2 + 2.6 * i, 3.9 + 0.15 * Math.sin(t * 5 + i), 1.4, 0.8 * pop(t - T.T_WARN - 0.2 * i), 0.8 * pop(t - T.T_WARN - 0.2 * i)); }
-    plateAt("nvr", "NEVER ACCEPT", "A GIFT FROM ZEUS!", "#c92a2e", "#ffffff", T.T_NEVER, 45.8, 1.0, 4.8, 1.4, 3.6, -0.03);
+    if (t >= T.T_WARN && t < 45.8) { const k = Math.sin(t * 6); who(5, PROM, "prom", 2.9, 0.3, "stern", { arms: { l: [-0.55, ar(-0.9 + 0.2 * k)], r: [0.55, ar(-0.9 - 0.2 * k)] } }, 1.3, { dy: 0.03 * Math.abs(k), sx: 1, sy: 1 + 0.015 * k, lean: 0.025 * k }, 0); for (let i = 0; i < 2; i++) s.fx("bg", 120, 120, bang, 1.2 + 2.6 * i, 3.9 + 0.15 * Math.sin(t * 5 + i), 1.4, 0.8 * pop(t - T.T_WARN - 0.2 * i), 0.8 * pop(t - T.T_WARN - 0.2 * i)); }
+    plateAt("nvr", "NEVER ACCEPT", "A GIFT FROM ZEUS!", "#c92a2e", "#ffffff", T.T_NEVER, 45.8, 0.5, 4.8, 1.4, 3.3, -0.03);
 
     // ---------- the jar ----------
     const showJar = t < 8.2 || (t >= T.T_HOUSE - 0.3 && t < 73.9) || t >= 87.0;
@@ -338,18 +338,20 @@ export const stage = (f: number, cam: CamInfo): Stage => {
     // Zeus on the throne (always, 18 - 24 angry; 29 - 37 judge)
     const zangry = t >= T.T_ZEUS && t < 24.0, kk = Math.sin(t * 7);
     who(60, ZEUS, "zeus", ox, -2.4, t >= T.T_ZEUS ? (zangry ? "stern" : "neutral") : "neutral", { arms: zangry ? { l: [-0.55, ar(-0.9 + 0.2 * kk)], r: [0.55, ar(-0.9 - 0.2 * kk)] } : { l: [-0.5, 0.35], r: [0.5, 0.35] } }, 1.5, zangry ? { dy: 0.04 * Math.abs(kk), sx: 1, sy: 1 + 0.015 * kk, lean: 0.03 * kk } : idle(t, 60, 1.5), 0.9, false);
-    if (t >= 11.7 && t < 17.9) {   // the theft
-      s.fx("bowl", 120, 120, flameC, ox - 7, 1.7, 2.5, 1.2, 1.4, {}); s.fx("bowlg", 200, 200, glowC("255,170,60"), ox - 7, 1.9, 2.4, 3.2, 3.2, { soft: true });
-      const u = clamp01((t - T.T_PROM) / 1.6), px = lerp(ox - 3, ox - 9, glide(u)), run = t >= T.T_FIRE;
-      const pxx = run ? lerp(ox - 7.5, ox - 1, glide(clamp01((t - T.T_FIRE) / 1.6))) : px;
-      if (t < T.T_PROM) who(61, PROM, "prom", ox + 3.5, 2.8, "stern", { arms: { l: [-0.4, 0.3], r: [0.4, 0.3] } }, 1.4, idle(t, 61, 1.5), 0);
-      else if (!run) stride(61, PROM, "promS", px, 2.8, "stern", -1, 1.5, { l: [-0.4, 0.3], r: [0.5, 0.3] }, 1.4, 0);
-      else { stride(61, PROM, "promR", pxx, 3.0, "grin", 1, 2.2, { l: [-0.4, 0.3], r: [0.55, -0.9] }, 1.4, 0); s.fx("tor", 80, 220, torchC, pxx + 0.6, 2.7, 3.1, 0.7, 1.9, { rot: 0.1 * Math.sin(t * 8) }); s.fx("torg", 200, 200, glowC("255,170,60"), pxx + 0.6, 3.4, 3.0, 2.0, 2.0, { soft: true }); }
-      plateAt("thf", "THEFT!", "", "#c92a2e", "#ffffff", T.T_THEFT, T.T_PROM, ox, 4.8, 3.0, 2.8, -0.03);
-      plateAt("prm", "TITAN", "PROMETHEUS", "#c8703a", "#ffffff", T.T_PROM, T.T_FIRE, ox - 1, 4.8, 3.0, 3.0, 0.03);
-      plateAt("fir", "FIRE!", "", "#c8703a", "#ffffff", T.T_FIRE, T.T_HUM, ox - 2, 4.8, 3.0, 2.4, -0.03);
-      if (t >= T.T_HUM) for (let k = 0; k < 3; k++) { const w = Math.sin(t * 6 + k); who(70 + k, HUM(k), `hum${k}`, ox - 8 + 1.4 * k, 4.0, "smile", { arms: { l: [-0.55, ar(-0.9 + 0.15 * w)], r: [0.55, ar(-0.9 - 0.15 * w)] } }, 1.1, hop(t, 70 + k, 1.2, 0.1), 0); }
-      plateAt("hmn", "TO HUMANS!", "", "#3a6a3a", "#ffffff", T.T_HUM, 17.9, ox - 6, 4.8, 3.0, 3.0, 0.03);
+    if (t >= 11.7 && t < 17.9) {   // the theft: everything stays within +-3.5 m of the camera axis
+      const bx0 = ox + 0.2;
+      const grab = t >= T.T_FIRE;
+      s.fx("bowl", 120, 120, flameC, bx0, 1.9, 2.6, 1.3, 1.5, {}); s.fx("bowlg", 200, 200, glowC("255,170,60"), bx0, 2.1, 2.5, 3.4, 3.4, { soft: true });
+      s.fx("bowlb", 120, 80, (p) => { p.poly(rr(10, 20, 110, 60, 12), "#c8a040", 8); p.poly([[40, 60], [80, 60], [70, 78], [50, 78]], "#a8801a", 6); }, bx0, 1.15, 2.6, 1.4, 0.9, {});
+      const wu = clamp01((t - T.T_PROM) / 1.2), rx = clamp01((t - T.T_FIRE) / 1.8);
+      if (t < T.T_PROM) who(61, PROM, "prom", ox + 2.6, 2.8, "stern", { arms: { l: [-0.4, 0.3], r: [0.4, 0.3] } }, 1.4, idle(t, 61, 1.5), 0);
+      else if (!grab) stride(61, PROM, "promS", lerp(ox + 2.6, ox + 1.3, glide(wu)), 2.8, "stern", -1, 1.5, { l: [-0.4, 0.3], r: [0.5, 0.3] }, 1.4, 0);
+      else { const pxx = lerp(ox + 1.3, ox - 1.6, glide(rx)); stride(61, PROM, "promR", pxx, 2.9, "grin", -1, 2.2, { l: [-0.4, 0.3], r: [0.55, -0.9] }, 1.4, 0); s.fx("tor", 80, 220, torchC, pxx + 0.6, 2.7, 3.0, 0.7, 1.9, { rot: 0.1 * Math.sin(t * 8) }); s.fx("torg", 200, 200, glowC("255,170,60"), pxx + 0.6, 3.4, 2.9, 2.0, 2.0, { soft: true }); }
+      plateAt("thf", "THEFT!", "", "#c92a2e", "#ffffff", T.T_THEFT, T.T_PROM, ox, 5.6, 3.0, 2.8, -0.03);
+      plateAt("prm", "TITAN", "PROMETHEUS", "#c8703a", "#ffffff", T.T_PROM, T.T_FIRE, ox, 5.6, 3.0, 3.0, 0.03);
+      plateAt("fir", "STOLEN FIRE!", "", "#c8703a", "#ffffff", T.T_FIRE, T.T_HUM, ox, 5.6, 3.0, 3.2, -0.03);
+      if (t >= T.T_HUM - 1.0) for (let k = 0; k < 3; k++) { const w = Math.sin(t * 6 + k); who(70 + k, HUM(k), `hum${k}`, ox - 3.8 + 1.2 * k, 4.0, t >= T.T_HUM ? "smile" : "neutral", { arms: { l: [-0.55, ar(-0.9 + 0.15 * w)], r: [0.55, ar(-0.9 - 0.15 * w)] } }, 1.1, t >= T.T_HUM ? hop(t, 70 + k, 1.2, 0.1) : idle(t, 70 + k, 1.5), 0); }
+      plateAt("hmn", "TO HUMANS!", "", "#3a6a3a", "#ffffff", T.T_HUM, 17.9, ox - 1, 5.6, 3.0, 3.0, 0.03);
     }
     if (t >= T.T_ZEUS && t < 24.0) {
       for (let k = 0; k < 4; k++) { const e = pop(t - T.T_FURY - 0.1 * k, 0.4); if (t >= T.T_FURY) s.fx("bolt", 80, 180, bolt, ox - 4 + 2.6 * k, 4.4 + 0.2 * Math.sin(t * 9 + k), -3.2, 0.8 * e, 1.9 * e, { rot: 0.2 * Math.sin(t * 6 + k) }); }
