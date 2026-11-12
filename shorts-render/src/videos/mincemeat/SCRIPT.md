@@ -1,0 +1,4 @@
+# Pandora's jar (Hesiod), 93.4 s, voice only (ElevenLabs James, eleven_v3), accuracy-first
+Documented / mainstream scholarship: Hesiod (c. 700 BC; Theogony + Works and Days) tells Prometheus stole fire, Zeus punished mankind by having Hephaestus form Pandora from earth and water; Athena (weaving/skills), Aphrodite (grace), Hermes (a cunning mind, lies, persuasive words) endowed her; "Pandora" = "all gifts"; Zeus sent her to Epimetheus though Prometheus had warned him not to accept gifts from Zeus; a large jar (pithos) stood sealed holding evils; she lifted the lid, evils spread, only Hope (elpis) stayed under the rim; Hesiod gives no motive (curiosity is a later addition); what "Hope" staying inside means is debated; Erasmus (c. 1508, Adagia) rendered pithos as Latin pyxis (box) and the "box" stuck.
+Flagged: "stuck for 500 years" is rounded; the 1508 date is the commonly cited one.
+Staged colour (illustration only): all scenes and character looks.

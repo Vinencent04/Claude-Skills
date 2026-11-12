@@ -1,0 +1,15 @@
+LINES=[
+("[shouting excitedly]","In 1943, British spies dressed up a dead man as a fake officer, and let him wash up on a Spanish beach! And it fooled Hitler!"),
+("[excited]","The Allies wanted to invade Sicily. But everyone expected it! So Britain needed a trick, to make the Germans look somewhere else."),
+("[mischievously]","Intelligence officer Ewen Montagu came up with a wild plan. It was called: Operation Mincemeat!"),
+("[dramatic]","First, they needed a body. They found a homeless Welshman, who had died after eating rat poison."),
+("[excited]","They gave him a new identity: Major William Martin, of the Royal Marines. They even gave him a fiancée, love letters, theatre tickets, and a bank overdraft!"),
+("[building tension]","And in a briefcase, chained to his wrist, they put fake top secret letters, hinting that the invasion would hit Greece and Sardinia!"),
+("[serious] [excited]","On the thirtieth of April, the submarine HMS Seraph crept up to the coast of Spain, and the crew slid the body into the sea."),
+("[excited]","A Spanish fisherman found him, and the secret papers ended up in German hands."),
+("[shouting excitedly]","The Germans believed every word! Hitler ordered troops, and even General Rommel, to Greece and Sardinia!"),
+("[excited] [laughing]","On the tenth of July, the Allies landed in Sicily, and the Germans were caught by surprise!"),
+("[serious]","The dead man was buried in Spain as William Martin. His real name stayed secret for over fifty years, until nineteen ninety-six."),
+("[dramatic]","Today, his gravestone says he was a Welshman, who served as Major William Martin."),
+("[cheerful] [excited]","So if you like history, where even a dead man can change a war, follow for more stories like this!"),
+]
