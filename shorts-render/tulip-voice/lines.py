@@ -1,0 +1,15 @@
+LINES=[
+("[shouting excitedly]","In 1637, a single tulip bulb could cost more than a fancy house in Amsterdam! But the story you heard about it? Mostly wrong!"),
+("[excited]","Tulips came from the Ottoman Empire, and reached the Netherlands in the 1590s. And people went crazy for their colors!"),
+("[dramatic]","The most prized tulips had flame-like stripes. Nobody knew why. Today we know: a virus caused the pattern!"),
+("[excited]","One famous variety, called Semper Augustus, was said to cost thousands of guilders, for a single bulb!"),
+("[mischievously]","Traders even sold bulbs that were still underground, with paper contracts, signed in taverns!"),
+("[building tension]","In early 1637, prices shot up, and some bulbs changed hands many times, within days!"),
+("[serious] [excited]","Then, in February, at an auction in Haarlem, nobody wanted to buy. And the prices crashed!"),
+("[dramatic]","Legend says the whole country was ruined, with bankrupt families everywhere. But historians today found almost no proof."),
+("[laughing] [excited]","Another legend: a sailor ate a rare bulb, thinking it was an onion! But that tale is only one anecdote, and may not be true."),
+("[excited]","In fact, towns let buyers cancel their contracts, by paying just a small fraction, around three and a half percent!"),
+("[mischievously] [excited]","So the tulip mania was probably much smaller than the myth! The big story grew mostly from a book, written two hundred years later, in 1841."),
+("[cheerful]","And the Netherlands is still famous for its tulips today!"),
+("[cheerful] [excited]","So if you like history, where the famous story is bigger than the truth, follow for more stories like this!"),
+]
